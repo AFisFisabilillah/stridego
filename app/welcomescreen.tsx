@@ -6,6 +6,7 @@ import {Link} from "expo-router";
 
 export default function Welcome() {
 
+
     return (
         <>
             <SafeAreaView style={style.container}>

@@ -4,9 +4,15 @@ import {Colors} from "@/constants/theme";
 import {Image} from "expo-image";
 import {} from "@expo/vector-icons/FontAwesome";
 import {Fontisto} from "@expo/vector-icons";
+import {useRouter} from "expo-router";
 
 export default function Register() {
-
+    const router = useRouter();
+    function handleRegistration() {
+        router.push({
+            pathname:"/(auth)/verification-code"
+        });
+    }
     return (
         <>
             <SafeAreaView style={style.container}>
@@ -35,7 +41,7 @@ export default function Register() {
                         </View>
                     </View>
                     <View style={style.containerButton}>
-                        <TouchableOpacity activeOpacity={.8} style={[style.button,style.buttonLogin]}>
+                        <TouchableOpacity onPress={handleRegistration} activeOpacity={.8} style={[style.button,style.buttonLogin]}>
                             <Text style={style.textRegister}>Register</Text>
                         </TouchableOpacity>
                     </View>
