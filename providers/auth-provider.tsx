@@ -2,21 +2,23 @@ import { AuthContext } from '@/hooks/use-auth-contex' ;
 import { supabase } from '@/lib/supabase'
 import type { Session } from '@supabase/supabase-js'
 import { PropsWithChildren, useEffect, useState } from 'react'
+import {useRouter} from "expo-router";
 
 export default function AuthProvider({ children }: PropsWithChildren) {
-    const [session, setSession] = useState<Session | undefined | null>()
-    const [profile, setProfile] = useState<any>()
-    const [isLoading, setIsLoading] = useState<boolean>(true)
+    const [session, setSession] = useState<Session | null>();
+    const [profile, setProfile] = useState<any>();
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const router = useRouter();
 
     // Fetch the session once, and subscribe to auth state changes
     useEffect(() => {
         const fetchSession = async () => {
-            setIsLoading(true)
+            setIsLoading(true);
 
             const {
                 data: { session },
                 error,
-            } = await supabase.auth.getSession()
+            } = await supabase.auth.getSession();
 
             if (error) {
                 console.error('Error fetching session:', error)
@@ -46,17 +48,26 @@ export default function AuthProvider({ children }: PropsWithChildren) {
         const fetchProfile = async () => {
             setIsLoading(true)
 
-            // if (session) {
-            //     const { data } = await supabase
-            //         .from('profiles')
-            //         .select('*')
-            //         .eq('id', session.user.id)
-            //         .single()
-            //
-            //     setProfile(data)
-            // } else {
-            //     setProfile(null)
-            // }
+            if (session) {
+                const { data } = await supabase
+                    .from('profiles')
+                    .select('*')//@ts-ignore
+                    .eq('id', session.user.id)
+                    .single()
+                console.log(data)
+                if(!data){
+                    router.push({
+                        pathname:"/(auth)/input-profile",
+                        params:{
+                            id:session.user.id
+                        }
+                    })
+                }else{
+                    setProfile(data);
+                }
+            } else {
+                setProfile(null)
+            }
 
             setIsLoading(false)
         }

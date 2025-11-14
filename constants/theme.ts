@@ -14,6 +14,7 @@ export const Colors = {
     primary: '#1E90FF',
     background: '#F9FAFB',
     secondary: '#5BAEFF',
+    error:"#ea1717",
     tint: tintColorLight,
     paragraph:"rgba(42 41, 43, 0.83)",
     icon: '#687076',

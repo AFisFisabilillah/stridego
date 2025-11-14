@@ -1,7 +1,8 @@
 import {createClient} from "@supabase/supabase-js";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {Database} from "@/types/database.types";
 
-const supabaseUrl :string|undefined = process.env.EXPO_SUPABASE_URL;
+const supabaseUrl :string|undefined = process.env.EXPO_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey :string|undefined = process.env.EXPO_PUBLIC_SUPABASE_API_KEY;
 
 const ExpoWebSecureStoreAdapter = {
@@ -17,7 +18,7 @@ const ExpoWebSecureStoreAdapter = {
     },
 };
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     auth: {
         storage: ExpoWebSecureStoreAdapter,
         autoRefreshToken: true,

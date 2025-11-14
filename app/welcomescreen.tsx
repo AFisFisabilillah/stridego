@@ -22,7 +22,7 @@ export default function Welcome() {
                     </View>
                 </View>
                 <View style={style.containerButton}>
-                    <Link href="/" asChild>
+                    <Link href="/(auth)/login" asChild>
                         <Pressable >
                             {({ pressed }) => (
                                 <View
