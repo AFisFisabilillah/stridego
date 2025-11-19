@@ -3,7 +3,7 @@ import {StyleSheet, View, Text, Pressable} from "react-native";
 import {Image} from "expo-image";
 import {Colors} from "@/constants/theme";
 import {Link} from "expo-router";
-
+import {GestureHandlerRootView} from "react-native-gesture-handler";
 export default function Welcome() {
 
 
@@ -12,7 +12,7 @@ export default function Welcome() {
             <SafeAreaView style={style.container}>
                 <View style={style.containerView}>
                     <View style={style.containerImage}>
-                        <Image style={style.image} source={require("../assets/run-ilustration.svg")}/>
+                        <Image source={require("@/assets/run-ilustration.svg")} style={style.image}></Image>
                     </View>
                     <View style={style.containerTitle}>
                         <Text style={style.textTittle}>Selamat Datang Di StrideGo</Text>

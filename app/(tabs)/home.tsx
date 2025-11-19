@@ -1,9 +1,10 @@
 import {useContext} from "react";
 import {useAuthContext} from "@/hooks/use-auth-contex";
 import {SafeAreaView} from "react-native-safe-area-context";
-import {Text} from "react-native";
+import {Button, Text} from "react-native";
 import SignOutButton from "@/components/LogoutButton";
 import FriendRecommendCard from "@/components/FriendRecomendationCard";
+import {router} from "expo-router";
 
 export default function Home(){
     const auth = useAuthContext();
@@ -39,6 +40,9 @@ export default function Home(){
                         onAdd={() => console.log("Tambah teman:", item.name)}
                     />
                 ))}
+
+
+
                 <SignOutButton></SignOutButton>
             </SafeAreaView>
         </>
