@@ -1,6 +1,6 @@
 import * as Location from "expo-location";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {FlatList, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import BottomSheet, {BottomSheetFlatList, BottomSheetView} from "@gorhom/bottom-sheet";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {TrackingType, TrackingTypes} from "@/types/trackingTypes";
@@ -11,6 +11,9 @@ import {AnimatedView} from "react-native-reanimated/src/component/View";
 import {Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withDelay, withTiming} from "react-native-reanimated";
 import PauseIcon from "@/assets/icon/PauseIcon";
 import {AnimatedText} from "react-native-reanimated/src/component/Text";
+import StopIcon from "@/assets/icon/StopIcon";
+import RunningDataCard from "@/components/RunningMetricsCard";
+import RunningMetricsCard from "@/components/RunningMetricsCard";
 
 export default function TrackingRun() {
     const [location, setLocation] = useState<Location.LocationObject>(null);
@@ -19,47 +22,61 @@ export default function TrackingRun() {
     const [isStarting, setStarting] = useState<boolean>(false);
     const [isPause, setPause] = useState<boolean>(false);
     const Icon = trackingType.icon;
+    const bottomSheetPermision = useRef<BottomSheet | null>(null);
+    const bottomSHeetTrackingType = useRef<BottomSheet | null>(null);
+    const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
 
+    const currentRunningData = {
+        speed: "8.5 km/h",
+        distance: "5.2 km",
+        time: "00:35:12",
+    };
+
+    // UI THREAD STATE
+    const playFLex = useSharedValue<number>(0);
     const playWidth = useSharedValue<number>(70);
-    const buttonSide = useSharedValue<number>(1);
-    const textOpacity = useSharedValue<number>(0);
-    const textScale = useSharedValue<number>(0);
+    const playOpacity = useSharedValue<number>(1);
+    const sideButtonWidth = useSharedValue<number>(60);
+    const sideButtonScale = useSharedValue<number>(1);
+    const textPauseWidth = useSharedValue<number>(0);
+    const textPauseMarginLeft = useSharedValue<number>(0);
+    const textPauseScale = useSharedValue<number>(0);
+    const finishFlex = useSharedValue<number>(0);
+    const finishScale = useSharedValue<number>(0);
+
 
     //@ts-ignore
+    const finishButtonAnimationStyle = useAnimatedStyle(() => {
+        return {
+            flex: finishFlex.value,
+            transform: [{scale: finishScale.value}],
+        }
+    })
+
     const playAnimationStyle = useAnimatedStyle(() => {
         return {
-            flexGrow: withTiming(buttonSide.value > 0.01 ? 0 : 1, {
-                duration: 360,
-                easing: Easing.elastic(2),
-                reduceMotion: ReduceMotion.System,
-            }),
-            width: withTiming(buttonSide.value > 0.01 ? 70 : "50%", {
-                duration: 360,
-                easing: Easing.elastic(2),
-                reduceMotion: ReduceMotion.System,
-            }),
-        };
+            width: playWidth.value,
+            flex: playFLex.value,
+            opacity: playOpacity.value,
+        }
     });
 
     //@ts-ignore
     const sideButtonAnimationStyle = useAnimatedStyle(() => {
         return {
-            transform: [{ scaleX: buttonSide.value }],
-            width: withTiming(buttonSide.value > 0.01 ? 60 : 0, { duration: 200 }),
-            opacity: withTiming(buttonSide.value, { duration: 200 }),
-            marginHorizontal: withTiming(buttonSide.value > 0.01 ? 0 : 0, { duration: 200 }),};
+            width: sideButtonWidth.value,
+            transform: [{scale: sideButtonScale.value}]
+        }
     });
 
     //@ts-ignore
-    const textAnimationStyle= useAnimatedStyle(() => {
+    const textPauseStyle = useAnimatedStyle(() => {
         return {
-            opacity: withTiming(textOpacity.value, { duration: 300 }),
-            transform: [{ scale: withTiming(textScale.value, { duration: 300 }) }]
+            width: textPauseWidth.value,
+            marginLeft: textPauseMarginLeft.value,
+            transform: [{scale: textPauseScale.value}]
         }
     })
-    const bottomSheetPermision = useRef<BottomSheet | null>(null);
-    const bottomSHeetTrackingType = useRef<BottomSheet | null>(null);
-    const snapPoints = useMemo(() => ["60%", "70%","100%"], []);
 
     useEffect(() => {
         if (errorPermision) {
@@ -80,22 +97,68 @@ export default function TrackingRun() {
         getCurrentLocation();
     }, []);
 
-    function handlePausePress(){
+    function handlePLayPress() {
+        console.log(isStarting, isPause);
+        if (!isStarting) {
+            sideButtonWidth.value = withTiming(0, {duration: 200});
+            sideButtonScale.value = withTiming(0, {duration: 200});
+            playWidth.value = withTiming(0, {duration: 200});
+            playFLex.value = withTiming(1, {
+                duration: 1000,
+                easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+                reduceMotion: ReduceMotion.System,
+            });
+            textPauseWidth.value = withTiming(39, {duration: 100});
+            textPauseMarginLeft.value = withTiming(15, {duration: 1300});
+            textPauseScale.value = withTiming(1, {duration: 1200});
 
-    }
-    function handlePlayPress() {
-        if(!isStarting){
-            buttonSide.value = withTiming(0, { duration: 200 });
-            textScale.value = 0;
-            textOpacity.value = 0;
-
-            textScale.value = withTiming(1);
-            textOpacity.value =withTiming(1);
             setStarting(true);
+        } else if (isStarting || isPause) {
+            // sideButtonWidth.value = withTiming(60, {duration: 300});
+            // sideButtonScale.value = withTiming(1, {duration: 200});
+            // playWidth.value = withTiming(70, {duration: 200});
+            // playFLex.value =withTiming(0, {
+            //     duration: 1000,
+            //     easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+            //     reduceMotion: ReduceMotion.System,
+            // });
+            //
+            // textPauseWidth.value=withTiming(0, {duration: 200});
+            // textPauseMarginLeft.value=withTiming(0, {duration: 200});
+            // textPauseScale.value=withTiming(0, {duration: 100});
+
+            if (isPause && isStarting) {
+                console.log("tekan tombol press")
+                setPause(false);
+                finishFlex.value = withTiming(0, {
+                    duration: 1000,
+                    easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+                    reduceMotion: ReduceMotion.System,
+                });
+                finishScale.value = withTiming(0, {
+                    duration: 1000,
+                    easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+                    reduceMotion: ReduceMotion.System,
+                });
+            } else {
+                finishFlex.value = withTiming(1, {
+                    duration: 1000,
+                    easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+                    reduceMotion: ReduceMotion.System,
+                });
+                finishScale.value = withTiming(1, {
+                    duration: 1000,
+                    easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
+                    reduceMotion: ReduceMotion.System,
+                });
+                textPauseMarginLeft.value = withTiming(5, {duration: 300});
+                setPause(true);
+            }
+
         }
     }
 
-    function handlerPressTrackingType(){
+    function handlerPressTrackingType() {
         bottomSHeetTrackingType.current?.snapToIndex(1);
     }
 
@@ -107,21 +170,25 @@ export default function TrackingRun() {
     return (
 
         <SafeAreaView style={styles.container}>
+            <RunningMetricsCard></RunningMetricsCard>
             <View style={styles.containerButton}>
-                <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}>
-                    <TouchableOpacity  onPress={handlerPressTrackingType}>
-                        <Icon width={30} height={30} fill={Colors.light.primary}/>
-                    </TouchableOpacity>
+                <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}
+                >
+                    <Icon width={30} height={30} fill={Colors.light.primary}/>
                 </AnimatedView>
-                <AnimatedView style={[styles.containerStart,playAnimationStyle]}>
-                    <TouchableOpacity style={styles.touchableStart} onPress={handlePlayPress}>
-                        {isStarting ? <PauseIcon width={30} height={30} fill={"#ffffff"} /> : <PlayIcon height={30} width={30}/>}
-                        {isStarting && <AnimatedText style={[styles.textPause, textAnimationStyle]}>Jeda</AnimatedText>
-                        }
-                    </TouchableOpacity>
+                <AnimatedView style={[styles.containerStart, playAnimationStyle]}>
+                    <Pressable style={styles.pressebleStart} onPress={handlePLayPress}>
+                        {isStarting && !isPause
+                            ? <PauseIcon width={30} height={30} fill={"#ffffff"}/>
+                            : <PlayIcon height={30} width={30}/>}
+                        <AnimatedText style={[styles.textPause, textPauseStyle]}>Jeda</AnimatedText>
+                    </Pressable>
                 </AnimatedView>
-                <AnimatedView style={[styles.containerIcon,sideButtonAnimationStyle ]}></AnimatedView>
-
+                <AnimatedView style={[styles.containerIcon, sideButtonAnimationStyle]}></AnimatedView>
+                {/*FInish*/}
+                {isStarting && <AnimatedView style={[styles.containerFinish, finishButtonAnimationStyle]}>{isPause &&
+                    <StopIcon width={30} height={30} fill={"#ffffff"}/>}</AnimatedView>
+                }
             </View>
             <BottomSheet ref={bottomSheetPermision} snapPoints={snapPoints} index={-1}>
                 <BottomSheetView style={{padding: 20}}>
@@ -130,18 +197,21 @@ export default function TrackingRun() {
                     <Text style={styles.textPermission}>Izinkan Aplikasi untuk Mengakses Lokasi anda</Text>
                 </BottomSheetView>
             </BottomSheet>
-            <BottomSheet enablePanDownToClose={true} ref={bottomSHeetTrackingType} snapPoints={snapPoints} index={-1} >
+            <BottomSheet enablePanDownToClose={true} ref={bottomSHeetTrackingType} snapPoints={snapPoints} index={-1}>
                 <BottomSheetFlatList
                     data={TrackingTypes}
                     keyExtractor={item => item.id}
-                    renderItem={ ({item,index}) => {
+                    renderItem={({item, index}) => {
                         const Icon = item.icon;
                         return (
                             <TouchableOpacity onPress={event => {
                                 handlePressChangeTrackingType(index)
-                            }} style={[styles.containerTypeItems,(item.id == trackingType.id) && styles.typeItemsSelected ]}>
-                                <Icon width={28} height={28} fill={(item.id == trackingType.id) ? Colors.light.primary : "#000000"}/>
-                                <Text style={[styles.typeItemsText,(item.id == trackingType.id) && styles.typeItemsTextSelected]}>{item.name}</Text>
+                            }}
+                                              style={[styles.containerTypeItems, (item.id == trackingType.id) && styles.typeItemsSelected]}>
+                                <Icon width={28} height={28}
+                                      fill={(item.id == trackingType.id) ? Colors.light.primary : "#000000"}/>
+                                <Text
+                                    style={[styles.typeItemsText, (item.id == trackingType.id) && styles.typeItemsTextSelected]}>{item.name}</Text>
                             </TouchableOpacity>
                         )
                     }}
@@ -157,7 +227,7 @@ export default function TrackingRun() {
         </SafeAreaView>
     );
 }
-
+//@ts-ignore
 const styles = StyleSheet.create({
     iamgePermision: {
         width: 200,
@@ -184,7 +254,7 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
         alignItems: "center",
         backgroundColor: "#ffffff",
-        gap:4
+        gap: 4
     },
 
     buttonTrackingTypes: {
@@ -201,22 +271,18 @@ const styles = StyleSheet.create({
         color: Colors.light.primary,
     },
     containerStart: {
-        minWidth: 70,
+        width: 70,
         height: 70,
         borderRadius: 80,
         backgroundColor: Colors.light.primary,
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
     },
 
-    touchableStart:{
-        width:"100%",
-        height:"100%",
+    pressebleStart: {
+        width: "100%",
+        height: "100%",
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        gap:18
     },
 
     icon: {
@@ -240,52 +306,68 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center",
-        gap:25,
-        marginHorizontal:10,
-        marginVertical:3,
-        paddingHorizontal:10,
-        paddingVertical:6,
-        borderRadius:9
+        gap: 25,
+        marginHorizontal: 10,
+        marginVertical: 3,
+        paddingHorizontal: 10,
+        paddingVertical: 6,
+        borderRadius: 9
     },
 
-    typeItemsText:{
-        fontWeight:"500",
-        fontSize:15
+    typeItemsText: {
+        fontWeight: "500",
+        fontSize: 15
     },
-    typeItemsSelected:{
-        backgroundColor:"rgba(30,144,255,0.15)"
+    typeItemsSelected: {
+        backgroundColor: "rgba(30,144,255,0.15)"
     },
-    typeItemsTextSelected:{
-        color:Colors.light.text
+    typeItemsTextSelected: {
+        color: Colors.light.text
     },
 
-    headerTrackingTypes:{
-        paddingHorizontal:20,
-        width:"100%",
-        marginBottom:20,
+    headerTrackingTypes: {
+        paddingHorizontal: 20,
+        width: "100%",
+        marginBottom: 20,
         boxSizing: "border-box",
     },
     headerTrackingTypesText: {
-        fontSize:16,
+        fontSize: 16,
         fontWeight: "bold",
     },
-    lineHeader:{
-        width:"100%",
-        height:1,
+    lineHeader: {
+        width: "100%",
+        height: 1,
         backgroundColor: "rgba(0,0,0,0.2)",
-        marginTop:12,
+        marginTop: 12,
     },
 
-    textPause:{
-        color:"white",
-        fontSize:18,
-        fontWeight:"bold",
-        position:"relative",
+    textPause: {
+        width: 0,
+        transform: [{scale: 0}],
+        color: "white",
+        fontSize: 16,
+        fontWeight: "bold",
+        position: "relative",
     },
-    containerPause:{
-        flexGrow:1,
-        backgroundColor:"rgba(0,0,0,0.6)",
-        height:"100%",
-        borderRadius:100
-    }
+    containerPause: {
+        flexGrow: 1,
+        backgroundColor: "rgba(0,0,0,0.6)",
+        height: "100%",
+        borderRadius: 100
+    },
+
+    containerFinish: {
+        flex: 0,
+        width: 0,
+        transform: [{scale: 0}],
+        height: "100%",
+        borderRadius: 100,
+        backgroundColor: "rgba(0,0,0,0.8)",
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+
+
 });

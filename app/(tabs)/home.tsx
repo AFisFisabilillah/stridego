@@ -5,6 +5,7 @@ import {Button, Text} from "react-native";
 import SignOutButton from "@/components/LogoutButton";
 import FriendRecommendCard from "@/components/FriendRecomendationCard";
 import {router} from "expo-router";
+import RunningMetricsCard from "@/components/RunningMetricsCard";
 
 export default function Home(){
     const auth = useAuthContext();
@@ -44,6 +45,7 @@ export default function Home(){
 
 
                 <SignOutButton></SignOutButton>
+
             </SafeAreaView>
         </>
     )
