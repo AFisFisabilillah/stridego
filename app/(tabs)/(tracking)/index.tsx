@@ -27,9 +27,10 @@ export default function TrackingRun() {
     const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
 
     const currentRunningData = {
-        speed: "8.5 km/h",
-        distance: "5.2 km",
-        time: "00:35:12",
+        speed: "8.5",
+        distance: "5.2",
+        time: "00:35",
+        trackingType:trackingType
     };
 
     // UI THREAD STATE
@@ -168,13 +169,14 @@ export default function TrackingRun() {
     }
 
     return (
-
         <SafeAreaView style={styles.container}>
-            <RunningMetricsCard></RunningMetricsCard>
+            <RunningDataCard speed={currentRunningData.speed} distance={currentRunningData.distance} time={currentRunningData.time} trackingType={currentRunningData.trackingType} />
             <View style={styles.containerButton}>
                 <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}
                 >
-                    <Icon width={30} height={30} fill={Colors.light.primary}/>
+                    <TouchableOpacity onPress={handlerPressTrackingType}>
+                        <Icon width={30} height={30} fill={Colors.light.primary}/>
+                    </TouchableOpacity>
                 </AnimatedView>
                 <AnimatedView style={[styles.containerStart, playAnimationStyle]}>
                     <Pressable style={styles.pressebleStart} onPress={handlePLayPress}>
@@ -245,6 +247,7 @@ const styles = StyleSheet.create({
 
     containerButton: {
         width: "90%",
+        position:"relative",
         marginHorizontal: "auto",
         paddingHorizontal: 15,
         paddingVertical: 12,
