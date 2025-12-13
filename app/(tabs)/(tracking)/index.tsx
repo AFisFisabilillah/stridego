@@ -1,6 +1,7 @@
 import * as Location from "expo-location";
+import {LocationAccuracy, LocationObject, LocationSubscription} from "expo-location";
 import {useEffect, useMemo, useRef, useState} from "react";
-import {FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Pressable, StyleSheet, Text, TouchableOpacity, View} from "react-native";
 import BottomSheet, {BottomSheetFlatList, BottomSheetView} from "@gorhom/bottom-sheet";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {TrackingType, TrackingTypes} from "@/types/trackingTypes";
@@ -8,12 +9,15 @@ import {Colors} from "@/constants/theme";
 import {Image} from "expo-image";
 import PlayIcon from "@/assets/icon/Play";
 import {AnimatedView} from "react-native-reanimated/src/component/View";
-import {Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withDelay, withTiming} from "react-native-reanimated";
+import {Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming} from "react-native-reanimated";
 import PauseIcon from "@/assets/icon/PauseIcon";
 import {AnimatedText} from "react-native-reanimated/src/component/Text";
 import StopIcon from "@/assets/icon/StopIcon";
 import RunningDataCard from "@/components/RunningMetricsCard";
-import RunningMetricsCard from "@/components/RunningMetricsCard";
+import TrackingMap from "@/components/TrackingMap";
+import {useImmer} from "use-immer";
+import getDistanceFromCoordinat from "@/utils/getDistanceFromCoordinat";
+import {durationFormat} from "@/utils/durationFormat";
 
 export default function TrackingRun() {
     const [location, setLocation] = useState<Location.LocationObject>(null);
@@ -26,10 +30,14 @@ export default function TrackingRun() {
     const bottomSHeetTrackingType = useRef<BottomSheet | null>(null);
     const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
 
+    const [distance , setDistance] = useState<number>(0);
+    const [routeCoordinates, setRouteCoordinat] = useImmer<{latitude:number, longitude:number}[]>([]);
+    const [duration, setDuration] = useState<number>(0);
+    const locationSubcription = useRef<LocationSubscription | null>(null);
     const currentRunningData = {
         speed: "8.5",
-        distance: "5.2",
-        time: "00:35",
+        distance: distance.toFixed(2),
+        time: durationFormat(duration),
         trackingType:trackingType
     };
 
@@ -77,7 +85,55 @@ export default function TrackingRun() {
             marginLeft: textPauseMarginLeft.value,
             transform: [{scale: textPauseScale.value}]
         }
-    })
+    });
+
+    useEffect(() => {
+        let interval: number;
+        if (isStarting && !isPause) {
+            interval = setInterval(() => {
+                setDuration((prev) => prev + 1);
+            }, 1000);
+        }
+        return () => clearInterval(interval);
+    }, [isStarting, isPause]);
+
+    useEffect(() => {
+        const startTracking = async ()=>{
+
+            locationSubcription.current = await Location.watchPositionAsync({
+                accuracy : LocationAccuracy.BestForNavigation,
+                timeInterval:500
+            }, (location:LocationObject)=>{
+                setLocation(location);
+                setRouteCoordinat(draft => {
+
+                    const newPoint = {
+                        latitude:location.coords.latitude,
+                        longitude:location.coords.longitude,
+                    }
+
+                    if(draft.length > 0 ){
+                        const lastPoint = draft[draft.length - 1];
+                        const distance = getDistanceFromCoordinat(lastPoint.latitude, lastPoint.longitude, newPoint.latitude, newPoint.longitude);
+                        setDistance(prevState => prevState+distance)
+                    }
+                    draft.push(newPoint);
+                })
+            })
+        }
+
+        const stopTracking = ()=>{
+            if (locationSubcription.current) {
+                locationSubcription.current?.remove();
+                locationSubcription.current = null;
+            }
+        }
+        if(isStarting && !isPause){
+            startTracking();
+        }else{
+            stopTracking();
+        }
+    }, [isPause, isStarting]);
 
     useEffect(() => {
         if (errorPermision) {
@@ -85,6 +141,7 @@ export default function TrackingRun() {
         }
     }, [errorPermision]);
 
+    // Meminta izin unutk mengakses lokasi
     useEffect(() => {
         async function getCurrentLocation() {
             const {status} = await Location.requestForegroundPermissionsAsync();
@@ -99,7 +156,6 @@ export default function TrackingRun() {
     }, []);
 
     function handlePLayPress() {
-        console.log(isStarting, isPause);
         if (!isStarting) {
             sideButtonWidth.value = withTiming(0, {duration: 200});
             sideButtonScale.value = withTiming(0, {duration: 200});
@@ -115,21 +171,7 @@ export default function TrackingRun() {
 
             setStarting(true);
         } else if (isStarting || isPause) {
-            // sideButtonWidth.value = withTiming(60, {duration: 300});
-            // sideButtonScale.value = withTiming(1, {duration: 200});
-            // playWidth.value = withTiming(70, {duration: 200});
-            // playFLex.value =withTiming(0, {
-            //     duration: 1000,
-            //     easing: Easing.bezier(0.85, 0.27, 0.36, 0.82),
-            //     reduceMotion: ReduceMotion.System,
-            // });
-            //
-            // textPauseWidth.value=withTiming(0, {duration: 200});
-            // textPauseMarginLeft.value=withTiming(0, {duration: 200});
-            // textPauseScale.value=withTiming(0, {duration: 100});
-
             if (isPause && isStarting) {
-                console.log("tekan tombol press")
                 setPause(false);
                 finishFlex.value = withTiming(0, {
                     duration: 1000,
@@ -170,6 +212,7 @@ export default function TrackingRun() {
 
     return (
         <SafeAreaView style={styles.container}>
+            <TrackingMap routeLocation={routeCoordinates} currentLocation={location}/>
             <RunningDataCard speed={currentRunningData.speed} distance={currentRunningData.distance} time={currentRunningData.time} trackingType={currentRunningData.trackingType} />
             <View style={styles.containerButton}>
                 <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}
@@ -371,6 +414,4 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
     },
-
-
 });
