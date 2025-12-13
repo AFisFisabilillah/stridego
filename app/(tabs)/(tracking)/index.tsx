@@ -18,8 +18,10 @@ import TrackingMap from "@/components/TrackingMap";
 import {useImmer} from "use-immer";
 import getDistanceFromCoordinat from "@/utils/getDistanceFromCoordinat";
 import {durationFormat} from "@/utils/durationFormat";
+import {getAveragePace} from '@/utils/getPace'
 
 export default function TrackingRun() {
+    // @ts-ignore
     const [location, setLocation] = useState<Location.LocationObject>(null);
     const [errorPermision, setErrorPermision] = useState(false);
     const [trackingType, setTrackingType] = useState<TrackingType>(TrackingTypes[0]);
@@ -30,15 +32,16 @@ export default function TrackingRun() {
     const bottomSHeetTrackingType = useRef<BottomSheet | null>(null);
     const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
 
+    const [pace,setPace] = useState('--:--');
     const [distance , setDistance] = useState<number>(0);
+    const [duration,setDuration] = useState<number>(0);
     const [routeCoordinates, setRouteCoordinat] = useImmer<{latitude:number, longitude:number}[]>([]);
-    const [duration, setDuration] = useState<number>(0);
     const locationSubcription = useRef<LocationSubscription | null>(null);
     const currentRunningData = {
-        speed: "8.5",
+        pace: pace,
         distance: distance.toFixed(2),
         time: durationFormat(duration),
-        trackingType:trackingType
+        trackingType:trackingType,
     };
 
     // UI THREAD STATE
@@ -87,6 +90,16 @@ export default function TrackingRun() {
         }
     });
 
+
+    // Tambahkan useEffect untuk menghitung pace
+    useEffect(() => {
+        if (distance > 0 && duration > 0) {
+            const calculatedPace = getAveragePace(distance, duration);
+            setPace(calculatedPace);
+        } else {
+            setPace('--:--');
+        }
+    }, [distance, duration]);
     useEffect(() => {
         let interval: number;
         if (isStarting && !isPause) {
@@ -105,7 +118,11 @@ export default function TrackingRun() {
                 timeInterval:500
             }, (location:LocationObject)=>{
                 setLocation(location);
+                if(location.coords.speed !== null){
+
+                }
                 setRouteCoordinat(draft => {
+                    const distance:number = 0;
 
                     const newPoint = {
                         latitude:location.coords.latitude,
@@ -210,10 +227,11 @@ export default function TrackingRun() {
         bottomSHeetTrackingType.current?.close();
     }
 
+    // @ts-ignore
     return (
         <SafeAreaView style={styles.container}>
             <TrackingMap routeLocation={routeCoordinates} currentLocation={location}/>
-            <RunningDataCard speed={currentRunningData.speed} distance={currentRunningData.distance} time={currentRunningData.time} trackingType={currentRunningData.trackingType} />
+            <RunningDataCard pace={currentRunningData.pace} distance={currentRunningData.distance} time={currentRunningData.time} trackingType={currentRunningData.trackingType} />
             <View style={styles.containerButton}>
                 <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}
                 >

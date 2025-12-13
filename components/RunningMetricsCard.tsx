@@ -20,7 +20,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { TrackingType } from "@/types/trackingTypes";
 
 interface RunningData {
-    speed: string;
+    pace: string;
     distance: string;
     time: string;
     trackingType: TrackingType;
@@ -35,7 +35,7 @@ const EXPANDED_HEIGHT = SCREEN_HEIGHT - 130;
 export default function RunningMetricsCard({
                                                time,
                                                distance,
-                                               speed,
+                                               pace,
                                                trackingType,
                                            }: RunningData) {
     const [isExpand, setExpand] = useState<boolean>(false);
@@ -123,8 +123,20 @@ export default function RunningMetricsCard({
 
                     <DataColumn
                         label="Kecepatan"
-                        value={speed}
+                        value={pace}
                         unit="km/h"
+                        icon="speedometer-outline"
+                        color="#10B981"
+                        isExpanded={isExpand}
+                    />
+
+                    {!isExpand && <View style={styles.divider} />}
+                    {isExpand && <View style={styles.horizontalDivider} />}
+
+                    <DataColumn
+                        label="Pace"
+                        value={pace}
+                        unit=""
                         icon="speedometer-outline"
                         color="#10B981"
                         isExpanded={isExpand}
