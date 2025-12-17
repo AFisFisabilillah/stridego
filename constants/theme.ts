@@ -12,7 +12,7 @@ export const Colors = {
   light: {
     text: '#1E90FF',
     primary: '#1E90FF',
-    background: '#F9FAFB',
+    background: '#fefefe',
     secondary: '#5BAEFF',
     error:"#ea1717",
     tint: tintColorLight,

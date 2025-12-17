@@ -137,6 +137,4 @@ const style = StyleSheet.create({
     containerButton:{
         marginTop:50
     }
-
-
 })

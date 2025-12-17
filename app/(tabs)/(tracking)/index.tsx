@@ -19,10 +19,16 @@ import {useImmer} from "use-immer";
 import getDistanceFromCoordinat from "@/utils/getDistanceFromCoordinat";
 import {durationFormat} from "@/utils/durationFormat";
 import {getAveragePace} from '@/utils/getPace'
+import {useAuthContext} from "@/hooks/use-auth-contex";
+import {calculateCalories} from "@/utils/calculateCalories";
+import {Link, useRouter} from "expo-router";
+import { useActivityRun} from "@/providers/activity-tracking-provider";
 
 export default function TrackingRun() {
     // @ts-ignore
-    const [location, setLocation] = useState<Location.LocationObject>(null);
+    const router = useRouter();
+    const profile = useAuthContext().profile
+    const [location, setLocation] = useState<Location.LocationObject | null>(null);
     const [errorPermision, setErrorPermision] = useState(false);
     const [trackingType, setTrackingType] = useState<TrackingType>(TrackingTypes[0]);
     const [isStarting, setStarting] = useState<boolean>(false);
@@ -32,17 +38,21 @@ export default function TrackingRun() {
     const bottomSHeetTrackingType = useRef<BottomSheet | null>(null);
     const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
 
-    const [pace,setPace] = useState('--:--');
-    const [distance , setDistance] = useState<number>(0);
-    const [duration,setDuration] = useState<number>(0);
-    const [routeCoordinates, setRouteCoordinat] = useImmer<{latitude:number, longitude:number}[]>([]);
+    const [calorie, setCalorie] = useState<number>(0)
+    const [pace, setPace] = useState('--:--');
+    const [distance, setDistance] = useState<number>(0);
+    const [duration, setDuration] = useState<number>(0);
+    const [routeCoordinates, setRouteCoordinat] = useImmer<{ latitude: number, longitude: number }[]>([]);
     const locationSubcription = useRef<LocationSubscription | null>(null);
     const currentRunningData = {
         pace: pace,
         distance: distance.toFixed(2),
         time: durationFormat(duration),
-        trackingType:trackingType,
+        trackingType: trackingType,
+        calorie: calorie
     };
+
+    const {setActivity} = useActivityRun();
 
     // UI THREAD STATE
     const playFLex = useSharedValue<number>(0);
@@ -99,6 +109,7 @@ export default function TrackingRun() {
         } else {
             setPace('--:--');
         }
+        setCalorie(calculateCalories(trackingType.met, profile.weight, duration));
     }, [distance, duration]);
     useEffect(() => {
         let interval: number;
@@ -111,43 +122,43 @@ export default function TrackingRun() {
     }, [isStarting, isPause]);
 
     useEffect(() => {
-        const startTracking = async ()=>{
+        const startTracking = async () => {
 
             locationSubcription.current = await Location.watchPositionAsync({
-                accuracy : LocationAccuracy.BestForNavigation,
-                timeInterval:500
-            }, (location:LocationObject)=>{
+                accuracy: LocationAccuracy.BestForNavigation,
+                timeInterval: 500
+            }, (location: LocationObject) => {
                 setLocation(location);
-                if(location.coords.speed !== null){
+                if (location.coords.speed !== null) {
 
                 }
                 setRouteCoordinat(draft => {
-                    const distance:number = 0;
+                    const distance: number = 0;
 
                     const newPoint = {
-                        latitude:location.coords.latitude,
-                        longitude:location.coords.longitude,
+                        latitude: location.coords.latitude,
+                        longitude: location.coords.longitude,
                     }
 
-                    if(draft.length > 0 ){
+                    if (draft.length > 0) {
                         const lastPoint = draft[draft.length - 1];
                         const distance = getDistanceFromCoordinat(lastPoint.latitude, lastPoint.longitude, newPoint.latitude, newPoint.longitude);
-                        setDistance(prevState => prevState+distance)
+                        setDistance(prevState => prevState + distance)
                     }
                     draft.push(newPoint);
                 })
             })
         }
 
-        const stopTracking = ()=>{
+        const stopTracking = () => {
             if (locationSubcription.current) {
                 locationSubcription.current?.remove();
                 locationSubcription.current = null;
             }
         }
-        if(isStarting && !isPause){
+        if (isStarting && !isPause) {
             startTracking();
-        }else{
+        } else {
             stopTracking();
         }
     }, [isPause, isStarting]);
@@ -227,11 +238,28 @@ export default function TrackingRun() {
         bottomSHeetTrackingType.current?.close();
     }
 
+    // untuk stop
+    function handlePressStop() {
+        setPause(true);
+        setActivity({
+            route: routeCoordinates,
+            pace,
+            distance,
+            duration,
+            calorie,
+            trackingType,
+        });
+
+        router.push("/(tabs)/(tracking)/activity");
+    }
+
     // @ts-ignore
     return (
         <SafeAreaView style={styles.container}>
             <TrackingMap routeLocation={routeCoordinates} currentLocation={location}/>
-            <RunningDataCard pace={currentRunningData.pace} distance={currentRunningData.distance} time={currentRunningData.time} trackingType={currentRunningData.trackingType} />
+            <RunningDataCard calorie={currentRunningData.calorie} pace={currentRunningData.pace}
+                             distance={currentRunningData.distance} time={currentRunningData.time}
+                             trackingType={currentRunningData.trackingType}/>
             <View style={styles.containerButton}>
                 <AnimatedView style={[styles.containerIcon, styles.buttonTrackingTypes, sideButtonAnimationStyle]}
                 >
@@ -249,8 +277,15 @@ export default function TrackingRun() {
                 </AnimatedView>
                 <AnimatedView style={[styles.containerIcon, sideButtonAnimationStyle]}></AnimatedView>
                 {/*FInish*/}
-                {isStarting && <AnimatedView style={[styles.containerFinish, finishButtonAnimationStyle]}>{isPause &&
-                    <StopIcon width={30} height={30} fill={"#ffffff"}/>}</AnimatedView>
+                {isStarting && (
+
+                    <AnimatedView
+                        style={[styles.containerFinish, finishButtonAnimationStyle]}>
+                        <Pressable onPress={handlePressStop}>
+                            {isPause && <StopIcon width={30} height={30} fill={"#ffffff"}/>}
+                        </Pressable>
+                    </AnimatedView>
+                )
                 }
             </View>
             <BottomSheet ref={bottomSheetPermision} snapPoints={snapPoints} index={-1}>
@@ -263,8 +298,8 @@ export default function TrackingRun() {
             <BottomSheet enablePanDownToClose={true} ref={bottomSHeetTrackingType} snapPoints={snapPoints} index={-1}>
                 <BottomSheetFlatList
                     data={TrackingTypes}
-                    keyExtractor={item => item.id}
-                    renderItem={({item, index}) => {
+                    keyExtractor={(item:any) => item.id}
+                    renderItem={({item, index}:{item:any, index:any}) => {
                         const Icon = item.icon;
                         return (
                             <TouchableOpacity onPress={event => {
@@ -308,7 +343,7 @@ const styles = StyleSheet.create({
 
     containerButton: {
         width: "90%",
-        position:"relative",
+        position: "relative",
         marginHorizontal: "auto",
         paddingHorizontal: 15,
         paddingVertical: 12,

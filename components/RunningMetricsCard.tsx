@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useState} from "react";
 import {
     Dimensions,
     Platform,
@@ -16,17 +16,18 @@ import Animated, {
     FadeIn,
     FadeOut,
 } from "react-native-reanimated";
-import { Ionicons } from "@expo/vector-icons";
-import { TrackingType } from "@/types/trackingTypes";
+import {Ionicons} from "@expo/vector-icons";
+import {TrackingType} from "@/types/trackingTypes";
 
 interface RunningData {
     pace: string;
     distance: string;
     time: string;
     trackingType: TrackingType;
+    calorie: number
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get("window");
+const {width: SCREEN_WIDTH, height: SCREEN_HEIGHT} = Dimensions.get("window");
 const CARD_WIDTH = SCREEN_WIDTH * 0.92;
 
 const COLLAPSED_HEIGHT = 170;
@@ -36,6 +37,7 @@ export default function RunningMetricsCard({
                                                time,
                                                distance,
                                                pace,
+                                                calorie,
                                                trackingType,
                                            }: RunningData) {
     const [isExpand, setExpand] = useState<boolean>(false);
@@ -48,15 +50,15 @@ export default function RunningMetricsCard({
     const handleExpand = () => {
         if (!isExpand) {
             // Expand
-            heightBox.value = withSpring(EXPANDED_HEIGHT, { damping: 16, stiffness: 90 });
-            widthBox.value = withSpring(SCREEN_WIDTH * 0.95, { damping: 16, stiffness: 90 });
-            rotateIcon.value = withTiming(180, { duration: 300 });
+            heightBox.value = withSpring(EXPANDED_HEIGHT, {damping: 16, stiffness: 90});
+            widthBox.value = withSpring(SCREEN_WIDTH * 0.95, {damping: 16, stiffness: 90});
+            rotateIcon.value = withTiming(180, {duration: 300});
             setExpand(true);
         } else {
             // Collapse
-            heightBox.value = withSpring(COLLAPSED_HEIGHT, { damping: 16, stiffness: 90 });
-            widthBox.value = withSpring(CARD_WIDTH, { damping: 16, stiffness: 90 });
-            rotateIcon.value = withTiming(0, { duration: 300 });
+            heightBox.value = withSpring(COLLAPSED_HEIGHT, {damping: 16, stiffness: 90});
+            widthBox.value = withSpring(CARD_WIDTH, {damping: 16, stiffness: 90});
+            rotateIcon.value = withTiming(0, {duration: 300});
             setExpand(false);
         }
     };
@@ -67,7 +69,7 @@ export default function RunningMetricsCard({
     }));
 
     const animatedIconStyle = useAnimatedStyle(() => ({
-        transform: [{ rotate: `${rotateIcon.value}deg` }],
+        transform: [{rotate: `${rotateIcon.value}deg`}],
     }));
 
     return (
@@ -80,12 +82,12 @@ export default function RunningMetricsCard({
                 {/* Header Section */}
                 <View style={styles.headerRow}>
                     <View style={styles.badgeContainer}>
-                        <Ionicons name="fitness" size={14} color="#fff" />
+                        <Ionicons name="fitness" size={14} color="#fff"/>
                         <Text style={styles.badgeText}>{trackingType.name}</Text>
                     </View>
 
                     <Animated.View style={animatedIconStyle}>
-                        <Ionicons name="chevron-down" size={20} color="#A1A1AA" />
+                        <Ionicons name="chevron-down" size={20} color="#A1A1AA"/>
                     </Animated.View>
                 </View>
 
@@ -106,8 +108,8 @@ export default function RunningMetricsCard({
                         isExpanded={isExpand}
                     />
 
-                    {!isExpand && <View style={styles.divider} />}
-                    {isExpand && <View style={styles.horizontalDivider} />}
+                    {!isExpand && <View style={styles.divider}/>}
+                    {isExpand && <View style={styles.horizontalDivider}/>}
 
                     <DataColumn
                         label="Waktu"
@@ -118,25 +120,25 @@ export default function RunningMetricsCard({
                         isExpanded={isExpand}
                     />
 
-                    {!isExpand && <View style={styles.divider} />}
-                    {isExpand && <View style={styles.horizontalDivider} />}
+                    {!isExpand && <View style={styles.divider}/>}
+                    {isExpand && <View style={styles.horizontalDivider}/>}
 
                     <DataColumn
-                        label="Kecepatan"
+                        label="pace"
                         value={pace}
-                        unit="km/h"
+                        unit=""
                         icon="speedometer-outline"
                         color="#10B981"
                         isExpanded={isExpand}
                     />
 
-                    {!isExpand && <View style={styles.divider} />}
-                    {isExpand && <View style={styles.horizontalDivider} />}
+                    {!isExpand && <View style={styles.divider}/>}
+                    {isExpand && <View style={styles.horizontalDivider}/>}
 
                     <DataColumn
-                        label="Pace"
-                        value={pace}
-                        unit=""
+                        label="Calorie"
+                        value={`${calorie}`}
+                        unit="kkal"
                         icon="speedometer-outline"
                         color="#10B981"
                         isExpanded={isExpand}
@@ -152,11 +154,11 @@ export default function RunningMetricsCard({
                     >
                         <Text style={styles.detailsTitle}>Analisis Performa</Text>
                         <View style={styles.placeholderGraph}>
-                            <View style={[styles.bar, {height: '40%'}]} />
-                            <View style={[styles.bar, {height: '70%'}]} />
-                            <View style={[styles.bar, {height: '50%'}]} />
-                            <View style={[styles.bar, {height: '90%'}]} />
-                            <View style={[styles.bar, {height: '60%'}]} />
+                            <View style={[styles.bar, {height: '40%'}]}/>
+                            <View style={[styles.bar, {height: '70%'}]}/>
+                            <View style={[styles.bar, {height: '50%'}]}/>
+                            <View style={[styles.bar, {height: '90%'}]}/>
+                            <View style={[styles.bar, {height: '60%'}]}/>
                         </View>
                         <Text style={styles.detailsSubtitle}>Statistik lari Anda hari ini.</Text>
                     </Animated.View>
@@ -189,13 +191,13 @@ function DataColumn({
                 isExpanded && styles.dataColumnExpanded
             ]}
         >
-            <View style={[styles.iconCircle, { backgroundColor: `${color}15` }]}>
-                <Ionicons name={icon} size={isExpanded ? 20 : 16} color={color} />
+            <View style={[styles.iconCircle, {backgroundColor: `${color}15`}]}>
+                <Ionicons name={icon} size={isExpanded ? 20 : 16} color={color}/>
             </View>
 
             {/* PERBAIKAN DISINI: Menghapus flex: 1 dan typo 'wid' */}
             <View style={[
-                { alignItems: 'center', marginTop: 6 },
+                {alignItems: 'center', marginTop: 6},
                 isExpanded && {
                     alignItems: 'flex-start',
                     marginTop: 0,
@@ -204,7 +206,7 @@ function DataColumn({
                 }
             ]}>
                 <Text style={styles.label}>{label}</Text>
-                <Text style={[styles.value, isExpanded && { fontSize: 24 }]}>
+                <Text style={[styles.value, isExpanded && {fontSize: 24}]}>
                     {value}<Text style={styles.unit}>{unit}</Text>
                 </Text>
             </View>
@@ -220,7 +222,7 @@ const styles = StyleSheet.create({
         alignSelf: "center",
         overflow: "hidden",
         shadowColor: "#000",
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.08,
         shadowRadius: 12,
         elevation: 4,
