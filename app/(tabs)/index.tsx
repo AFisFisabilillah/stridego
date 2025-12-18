@@ -7,7 +7,7 @@ import FriendRecommendCard from "@/components/FriendRecomendationCard";
 import {router} from "expo-router";
 import RunningMetricsCard from "@/components/RunningMetricsCard";
 
-export default function Home(){
+export default function Index(){
     const auth = useAuthContext();
     const data = [
         {

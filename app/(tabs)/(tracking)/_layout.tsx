@@ -1,4 +1,4 @@
-import Home from "@/app/(tabs)/home";
+import Index from "@/app/(tabs)";
 import {Stack} from "expo-router";
 import {GestureHandlerRootView} from "react-native-gesture-handler";
 import {StyleSheet} from "react-native";
@@ -12,7 +12,7 @@ export default function TrackingLayout() {
                 <Stack >
                     <Stack.Screen options={{
                         headerShown:false
-                    }} name="index" />
+                    }} name="running" />
                     <Stack.Screen name={"activity"} options={{
                         title:"Simpan Aktivitas",
                         headerTitleStyle:StyleSheet.create({

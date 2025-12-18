@@ -57,6 +57,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
         try {
             const fileInfo:FileInfo = await FileSystem.getInfoAsync(uri);
             return {
+                //@ts-ignore
                 size: fileInfo?.size,
                 name: uri.split('/').pop() || 'image.jpg',
             };

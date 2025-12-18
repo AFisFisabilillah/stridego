@@ -1,4 +1,4 @@
-import {Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View} from "react-native";
+import {Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, Modal, Animated} from "react-native";
 import InputTheme from "@/components/InputTheme";
 import {Colors} from "@/constants/theme";
 import {useEffect, useMemo, useRef, useState} from "react";
@@ -6,18 +6,21 @@ import {useImmer} from "use-immer";
 import TextArea from "@/components/TextArea";
 import {TrackingType, TrackingTypes} from "@/types/trackingTypes";
 import BottomSheet, {BottomSheetBackdrop, BottomSheetFlatList, BottomSheetView} from "@gorhom/bottom-sheet";
-import ImagePicker from "@/components/ImagePicker";
+import ImagePicker, {SelectedImage} from "@/components/ImagePicker";
 import {AntDesign, Entypo, FontAwesome, Ionicons, MaterialCommunityIcons} from "@expo/vector-icons";
 import RadioButton from "@/components/RadioButton";
 import {Visibility} from "@/types/visibility";
 import {ButtonOutline} from "@/components/ButtonOutline";
 import Button from "@/components/Button";
 import {useActivityRun} from "@/providers/activity-tracking-provider";
-import {Coordinate} from "@/types/Coordinate";
 import {useAuthContext} from "@/hooks/use-auth-contex";
 import {durationFormat} from "@/utils/durationFormat";
 import TrackingView from "@/components/TrackingView";
 import DeleteConfirmationModal from "@/components/DeleteConfirmationModal";
+import {Activity} from "@/types/activities";
+import {createActivityRunning} from "@/services/activity.service";
+import SuccessAnimation from "@/components/SuccessAnimation";
+import {useRouter} from "expo-router";
 
 type ActivityState = {
     title: string,
@@ -27,6 +30,7 @@ type ActivityState = {
     calories: number,
     visibility: Visibility,
     created_at: number,
+    images: SelectedImage[]
 }
 
 const VISIBILITIES: Visibility[] = [
@@ -47,7 +51,7 @@ const VISIBILITIES: Visibility[] = [
 ]
 
 export default function CreateActivity() {
-    const {activityRun} = useActivityRun();
+    const {activityRun, clearActivity} = useActivityRun();
     const profile = useAuthContext().profile;
     const [activity, setActivity] = useImmer<ActivityState>({
         title: "",
@@ -56,13 +60,23 @@ export default function CreateActivity() {
         type: TrackingTypes[0],
         calories: 0,
         visibility: VISIBILITIES[1],
-        created_at: Date.now()
+        created_at: Date.now(),
+        images: []
     });
-    const [isDelete,setIsDelete] = useState<boolean>(false);
+
+    // State untuk modal dan notifikasi
+    const [isDelete, setIsDelete] = useState<boolean>(false);
+    const [isErrorModalVisible, setIsErrorModalVisible] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("");
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [isSuccess, setIsSuccess] = useState<boolean>(false);
+    const successAnimation = useRef(new Animated.Value(0)).current;
+    const router = useRouter();
     const snapPoints = useMemo(() => ["60%", "70%", "100%"], []);
     const IconType = activity.type.icon;
     const bottomSheetTrackingType = useRef<BottomSheet | null>(null);
     const bottomSheetVisibility = useRef<BottomSheet | null>(null);
+
     const [trackingData, setTrackingData] = useState({
         distance: 0,
         pace: '--:--',
@@ -70,6 +84,7 @@ export default function CreateActivity() {
         calories: 0,
         route: [] as { latitude: number; longitude: number }[],
     });
+
     useEffect(() => {
         if (activityRun) {
             setActivity(draft => {
@@ -90,6 +105,34 @@ export default function CreateActivity() {
             });
         }
     }, [activityRun, profile.weight]);
+
+    // Fungsi untuk menampilkan notifikasi sukses
+    const showSuccessAnimation = () => {
+        setIsSuccess(true);
+        Animated.sequence([
+            Animated.timing(successAnimation, {
+                toValue: 1,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+            Animated.delay(2000),
+            Animated.timing(successAnimation, {
+                toValue: 0,
+                duration: 300,
+                useNativeDriver: true,
+            }),
+        ]).start(() => {
+            setIsSuccess(false);
+            router.replace("/(tabs)");
+        });
+    };
+
+    // Fungsi untuk menampilkan modal error
+    const showErrorModal = (message: string) => {
+        setErrorMessage(message);
+        setIsErrorModalVisible(true);
+    };
+
     const handleDescriptionChange = (value: string) => {
         setActivity(draft => {
             draft.description = value;
@@ -123,20 +166,92 @@ export default function CreateActivity() {
         bottomSheetVisibility.current?.close()
     }
 
-    function handleCreateActivity() {
+    async function handleCreateActivity() {
+        // Validasi form
+        if (!activity.title.trim()) {
+            showErrorModal("Judul aktivitas tidak boleh kosong");
+            return;
+        }
+
+        if (!activityRun) {
+            showErrorModal("Data aktivitas tidak ditemukan");
+            return;
+        }
+
         console.log('Creating activity:', activity);
+        const createActivity: Activity = {
+            title: activity.title,
+            type: activity.type.name,
+            calorie: activityRun?.calorie || 0,
+            description: activity.description,
+            duration: activityRun?.duration || 0,
+            visibility: activity.visibility.name,
+            user_id: profile.id
+        }
+
+        setIsLoading(true);
+
+        try {
+            const response = await createActivityRunning(
+                createActivity,
+                {
+                    pace: activityRun?.pace || "",
+                    distance: activityRun?.distance || 0,
+                    route: activityRun?.route || []
+                },
+                activity.images
+            );
+
+            showSuccessAnimation();
+
+            // Reset form setelah berhasil
+            setTimeout(() => {
+                setActivity(draft => {
+                    draft.title = "";
+                    draft.description = "";
+                    draft.images = [];
+                });
+            }, 2000);
+            clearActivity()
+        } catch (error: any) {
+            console.log(error);
+            // Tampilkan error berdasarkan jenis error
+            let errorMsg = "Gagal menyimpan aktivitas. Silakan coba lagi.";
+
+            if (error.message) {
+                errorMsg = error.message;
+            } else if (error.code === 'NETWORK_ERROR') {
+                errorMsg = "Koneksi internet terputus. Periksa koneksi Anda.";
+            } else if (error.message?.includes('storage')) {
+                errorMsg = "Gagal mengupload gambar. Pastikan gambar tidak terlalu besar.";
+            }
+
+            showErrorModal(errorMsg);
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     function handleDelete() {
         setIsDelete(true);
     }
 
-    function handleConfirmation(){
+    function handleConfirmation() {
         console.log("dihapus")
     }
 
-    function handleCloseModal(){
+    function handleCloseModal() {
         setIsDelete(false);
+    }
+
+    function handleCloseErrorModal() {
+        setIsErrorModalVisible(false);
+    }
+
+    function handleSelectedImage(images: SelectedImage[]) {
+        setActivity(draft => {
+            draft.images = images
+        })
     }
 
     // @ts-ignore
@@ -231,7 +346,7 @@ export default function CreateActivity() {
                     <Text style={styles.textType}>{activity.type.name}</Text>
                 </Pressable>
 
-                <ImagePicker/>
+                <ImagePicker maxSelection={4} onImagesSelected={handleSelectedImage}/>
 
                 <View style={styles.visibilitasContainer}>
                     <Text style={styles.visibiltasText}>Visibilitas</Text>
@@ -254,7 +369,8 @@ export default function CreateActivity() {
                     style={styles.buttonCreate}
                     color={Colors.light.primary}
                     handlePress={handleCreateActivity}
-                    label={"Buat Aktivitas"}
+                    label={isLoading ? "Menyimpan..." : "Buat Aktivitas"}
+                    disabled={isLoading}
                 />
 
             </ScrollView>
@@ -268,8 +384,8 @@ export default function CreateActivity() {
             >
                 <BottomSheetFlatList
                     data={TrackingTypes}
-                    keyExtractor={(item:any) => item.id}
-                    renderItem={({item, index}:{item:any, index:any}) => {
+                    keyExtractor={(item: any) => item.id}
+                    renderItem={({item, index}: { item: any, index: any }) => {
                         const Icon = item.icon;
                         return (
                             <TouchableOpacity
@@ -344,7 +460,45 @@ export default function CreateActivity() {
                     ))}
                 </BottomSheetView>
             </BottomSheet>
-            <DeleteConfirmationModal visible={isDelete} onClose={handleCloseModal} onConfirm={handleConfirmation}/>
+
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmationModal
+                visible={isDelete}
+                onClose={handleCloseModal}
+                onConfirm={handleConfirmation}
+            />
+
+            {/* Error Modal */}
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={isErrorModalVisible}
+                onRequestClose={handleCloseErrorModal}
+            >
+                <View style={styles.modalOverlay}>
+                    <View style={styles.errorModalContainer}>
+                        <View style={styles.errorIconContainer}>
+                            <Ionicons name="alert-circle" size={60} color="#ff4444" />
+                        </View>
+                        <Text style={styles.errorModalTitle}>Terjadi Kesalahan</Text>
+                        <Text style={styles.errorModalMessage}>{errorMessage}</Text>
+                        <TouchableOpacity
+                            style={styles.errorModalButton}
+                            onPress={handleCloseErrorModal}
+                        >
+                            <Text style={styles.errorModalButtonText}>OK</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            </Modal>
+
+            {/* Success Animation Overlay */}
+            {isSuccess && (
+                <SuccessAnimation
+                    message="Aktivitas Berhasil Disimpan!"
+                    onAnimationComplete={() => setIsSuccess(false)}
+                />
+            )}
         </View>
     );
 }
@@ -513,6 +667,83 @@ const styles = StyleSheet.create({
     },
     buttonCreate: {
         flex: 2,
-        marginBottom:60,
+        marginBottom: 60,
+    },
+    // Modal Error Styles
+    modalOverlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 20,
+    },
+    errorModalContainer: {
+        backgroundColor: 'white',
+        borderRadius: 16,
+        padding: 24,
+        width: '100%',
+        maxWidth: 400,
+        alignItems: 'center',
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+    },
+    errorIconContainer: {
+        marginBottom: 16,
+    },
+    errorModalTitle: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: '#333',
+        marginBottom: 12,
+    },
+    errorModalMessage: {
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+        marginBottom: 24,
+        lineHeight: 22,
+    },
+    errorModalButton: {
+        backgroundColor: Colors.light.primary,
+        paddingHorizontal: 32,
+        paddingVertical: 12,
+        borderRadius: 8,
+        minWidth: 120,
+    },
+    errorModalButtonText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+    // Success Toast Styles
+    successToast: {
+        position: 'absolute',
+        top: 50,
+        left: 20,
+        right: 20,
+        backgroundColor: '#4CAF50',
+        borderRadius: 12,
+        padding: 16,
+        elevation: 5,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        zIndex: 1000,
+    },
+    successToastContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+    },
+    successToastText: {
+        color: 'white',
+        fontSize: 16,
+        fontWeight: '600',
     },
 });

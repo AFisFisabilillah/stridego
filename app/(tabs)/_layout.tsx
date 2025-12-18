@@ -7,7 +7,7 @@ export default function TabsLayout(){
             <Tabs screenOptions={{
                 headerShown:false
             }}>
-                <Tabs.Screen name={"home"}/>
+                <Tabs.Screen name={"index"}/>
                 <Tabs.Screen options={{
                     title: "Run",
                     tabBarStyle: {display:"none"}
