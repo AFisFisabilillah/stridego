@@ -1,12 +1,12 @@
-export interface ChallengeTemplate {
-    id: string;
-    title: string;
-    description: string | null;
-    level: 'beginner' | 'intermediate' | 'advanced' | string;
-    duration_days: number;
-    cover_image_url: string | null;
-    created_at: string;
-}
+    export interface ChallengeTemplate {
+        id: string;
+        title: string;
+        description: string | null;
+        level: 'beginner' | 'intermediate' | 'advanced' | string;
+        duration_days: number;
+        cover_image_url: string | null;
+        created_at: string;
+    }
 
 export interface ChallengeDay {
     id: number;

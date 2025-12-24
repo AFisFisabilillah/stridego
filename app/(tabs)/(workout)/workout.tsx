@@ -19,6 +19,7 @@ import {SafeAreaView} from "react-native-safe-area-context";
 import {getChallengeAll} from "@/services/challange.service";
 import {useImmer} from "use-immer";
 import {useAuthContext} from "@/hooks/use-auth-contex";
+import {router} from "expo-router";
 
 const filters:FilterChallenge[] = [
     { id: 'all', label: 'All Challenges',value:"all"},
@@ -133,7 +134,10 @@ const ChallengeListScreen = () => {
                 contentContainerStyle={styles.listContent}
                 renderItem={({item})=>{
                     return(
-                        <ChallengeTemplateCard userProgress={100} challenge={item} onPress={()=>{}} />
+                        <ChallengeTemplateCard
+                            userProgress={100}
+                            challenge={item}
+                            onPress={()=>{router.push(`/(workout)/${item.id}`)}} />
                     )
                 }}
             />

@@ -8,6 +8,8 @@ export default function TabsLayout(){
                 headerShown:false
             }}>
                 <Tabs.Screen name={"index"}/>
+                <Tabs.Screen name={"(workout)/workout"}/>
+                <Tabs.Screen name={"(workout)/[idChallenge]"}/>
                 <Tabs.Screen options={{
                     title: "Run",
                     tabBarStyle: {display:"none"}

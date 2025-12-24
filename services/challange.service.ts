@@ -45,3 +45,27 @@ export async function getChallengeAll(filter: FilterChallenge) {
 
     return data;
 }
+
+export async function getDetailChallenge(id :string ){
+    const { data, error } = await supabase
+        .from("challange_templates")
+        .select(`
+      id,
+      title,
+      description,
+      level,
+      duration_days,
+      cover_image_url,
+      challenge_days (
+        id,
+        title,
+        day_number,
+        created_at
+      )
+    `)
+        .eq("id", id)
+        .single();
+    console.log("data hasil fetch :", data)
+    if (error) throw  error;
+    return data;
+}
