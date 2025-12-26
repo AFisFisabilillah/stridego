@@ -13,7 +13,7 @@ import {
 import { Image } from "expo-image";
 import { useImmer } from "use-immer";
 import {ChallengeDay, ChallengeTemplate} from "@/types/challenge";
-import { getDetailChallenge } from "@/services/challange.service";
+import {getDetailChallenge, isUserJoinChallenge, joinChallenge} from "@/services/challange.service";
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
@@ -22,14 +22,21 @@ import {Colors} from "@/constants/theme";
 import {DayChallenge} from "@/components/DayChallenge";
 import {router} from "expo-router";
 import {useChallenge} from "@/providers/challenge-provider";
+import {useAuthContext} from "@/hooks/use-auth-contex";
+import Button from "@/components/Button";
+import SuccessModal from "@/components/SuccessModal";
 
 const { width } = Dimensions.get('window');
 
 export default function DetailChallenge() {
-    const {setChallenge,challenge,setChallengeDay} = useChallenge();
+    const idUser = useAuthContext().session?.user.id;
+    const {setChallenge,challenge,setChallengeDay,setIdChallengeJoin} = useChallenge();
     const { idChallenge } = useLocalSearchParams();
     const [loading, setLoading] = useState(false);
     const [challengeDays, setChallengeDays] = useImmer<ChallengeDay[]>([]);
+    const [loadingJoin, setLoadingJoin] = useState<boolean>(false);
+    const [join,setJoin] = useState<boolean>(false);
+    const [modal,setModal] = useState<boolean>(false);
 
     const fetchChallenge = async (idChallenge: string) => {
         try {
@@ -37,17 +44,28 @@ export default function DetailChallenge() {
             const data = await getDetailChallenge(idChallenge);
             //@ts-ignore
             setChallenge(data);
+            //@ts-ignore
             setChallengeDays(data["challenge_days"]);
+            //@ts-ignore
             console.log("challenge day : ", data["challenge_days"]);
             setLoading(false);
         } catch (e) {
             console.error(e);
             setLoading(false);
         }
+    };
+
+    const checkUserJoin = async (idUser:string , idChallenge:string)=>{
+        const {id, isJoin} = await isUserJoinChallenge(idUser,idChallenge);
+        setJoin(isJoin);
+        //@ts-ignore
+        setIdChallengeJoin(id.id);
     }
 
     useEffect(() => {
         fetchChallenge(idChallenge as string);
+        //@ts-ignore
+        checkUserJoin(idUser,idChallenge);
     }, [idChallenge]);
 
     const getLevelColor = (level: string) => {
@@ -74,6 +92,27 @@ export default function DetailChallenge() {
                 <ActivityIndicator size="large" color="#6366F1" />
             </SafeAreaView>
         );
+    }
+
+    async function handleJoinChallenge() {
+        //@ts-ignore
+        setLoadingJoin(true);
+        try {
+            //@ts-ignore
+            const data = await joinChallenge(idChallenge, idUser);
+            console.log("joinChallenge", data);
+            if(data){
+                setModal(true);
+                //@ts-ignore
+                setIdChallengeJoin(data.id);
+                setJoin(true);
+            }
+        }catch(error){
+            console.log(error)
+        }finally {
+            setLoadingJoin(false);
+        }
+
     }
 
     // @ts-ignore
@@ -138,20 +177,6 @@ export default function DetailChallenge() {
                         <Text style={styles.infoLabel}>Duration</Text>
                         <Text style={styles.infoValue}>{challenge.duration_days} days</Text>
                     </View>
-
-                    <View style={styles.infoCard}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#FEF3C7' }]}>
-                            <MaterialCommunityIcons name="update" size={24} color="#F59E0B" />
-                        </View>
-                        <Text style={styles.infoLabel}>Created</Text>
-                        <Text style={styles.infoValue}>
-                            {new Date(challenge.created_at).toLocaleDateString('id', {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric'
-                            })}
-                        </Text>
-                    </View>
                 </View>
 
                 {/* Description Card */}
@@ -183,25 +208,22 @@ export default function DetailChallenge() {
                         <Text style={styles.statLabel}>Active Now</Text>
                     </View>
                 </View>
-
-               <ButtonOutline color={Colors.light.primary} handlePress={()=>{}} text={"Start"}/>
+                {
+                    join ? (<Button handlePress={()=>{}} color={Colors.light.success} label={"Joined"}/> ): (<ButtonOutline disable={loadingJoin} color={Colors.light.primary} handlePress={handleJoinChallenge} text={"Start"}/>
+                    )
+                }
             </View>
-            {/*<FlatList*/}
-            {/*    data={challengeDays}*/}
-            {/*    renderItem={(items)=>{*/}
-            {/*        return (<DayChallenge day={items}/>)*/}
-            {/*    }}*/}
-            {/*/>*/}
 
             <View style={styles.containerDayList} >
                 {
                     challengeDays.map(value => (<DayChallenge onPress={()=>{
                         setChallengeDay(value);
+                        //@ts-ignore
                         router.push("/(day)/"+value.id)
                     }} isActive={false} isCompleted={false} key={value.id} day={value}/>))
                 }
             </View>
-
+            <SuccessModal visible={modal} onClose={()=> {setModal(false)}}/>
         </ScrollView>
     );
 }

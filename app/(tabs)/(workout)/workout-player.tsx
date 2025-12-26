@@ -18,6 +18,8 @@ import {RestTimer} from '@/components/RestTimer';
 import { WorkoutStatus, WorkoutPhase } from '@/types/challenge';
 import {useChallenge} from "@/providers/challenge-provider";
 import {SafeAreaView} from "react-native-safe-area-context";
+import {saveProgressChallenge} from "@/services/challange.service";
+import {useAuthContext} from "@/hooks/use-auth-contex";
 
 const { width, height } = Dimensions.get('window');
 const REST_DURATION = 120;
@@ -26,8 +28,8 @@ const REST_DURATION = 120;
 
 const WorkoutPlayerScreen: React.FC = () => {
     const router = useRouter();
-    const {exerciseDays,setWorkoutCompleted} = useChallenge();
-
+    const {exerciseDays,setWorkoutCompleted, challengeDay,idChallengeJoin} = useChallenge();
+    const userId = useAuthContext().session?.user.id;
     // @ts-ignore
     const exercises: ExerciseDay[] = exerciseDays;
 
@@ -150,9 +152,14 @@ const WorkoutPlayerScreen: React.FC = () => {
         }
     }, [workoutStatus, handleExerciseComplete, handleSkipRest, handleStart]);
 
-    const handleWorkoutComplete = useCallback(() => {
+    const handleWorkoutComplete = useCallback(async () => {
         stopWorkoutTimer();
         setWorkoutStatus(WorkoutStatus.COMPLETED);
+        try {
+            const data = saveProgressChallenge(idChallengeJoin, challengeDay?.id);
+        }catch (e) {
+            console.error(e);
+        }
         setWorkoutCompleted({
             completedCount: completedExercises.length,
             totalExercises: exercises.length,
@@ -326,7 +333,7 @@ const WorkoutPlayerScreen: React.FC = () => {
                         name={
                             workoutStatus === WorkoutStatus.IDLE ? "play" :
                                 workoutStatus === WorkoutStatus.ACTIVE ? "checkmark" :
-                                    "skip-forward"
+                                    "arrow-forward"
                         }
                         size={24}
                         color={Colors.light.card}
@@ -340,7 +347,7 @@ const WorkoutPlayerScreen: React.FC = () => {
                             style={styles.quickButton}
                             onPress={() => setCurrentIndex(prev => prev + 1)}
                         >
-                            <Ionicons name={"skip-forward"} size={20} color={Colors.light.textSecondary} />
+                            <Ionicons name={"arrow-forward"} size={20} color={Colors.light.textSecondary} />
                             <Text style={styles.quickButtonText}>Skip Exercise</Text>
                         </TouchableOpacity>
                     )}

@@ -15,7 +15,7 @@ import {router} from "expo-router";
 
 const DetailDay = () => {
     const {idDay} = useLocalSearchParams();
-    const {exerciseDays, setExerciseDays} = useChallenge();
+    const {exerciseDays, setExerciseDays,idChallengeJoin} = useChallenge();
     const [exerciseDetail, setExerciseDetail] = useImmer<Exercise | null>(null);
     const [exercises, setExercises] = useImmer<ExerciseDay[]>([]);
     const [currentExerciseDay, setCurrentExerciseDay] = useImmer<ExerciseDay | null>(null);
@@ -64,9 +64,9 @@ const DetailDay = () => {
             <FlatList
                 ListHeaderComponent={
                     <View>
-                        <ButtonOutline color={Colors.light.primary} handlePress={()=>{
+                        {idChallengeJoin &&  <ButtonOutline color={Colors.light.primary} handlePress={()=>{
                             router.push("/(workout)/workout-player")
-                        }} text={"Start"}/>
+                        }} text={"Start"}/>}
                     </View>
                 }
                 style={styles.containerExercise}
