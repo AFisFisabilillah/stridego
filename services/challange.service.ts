@@ -1,5 +1,5 @@
 import {supabase} from "@/lib/supabase";
-import {FilterChallenge} from "@/types/challenge";
+import {ExerciseDay, FilterChallenge} from "@/types/challenge";
 
 export async function getChallengeAll(filter: FilterChallenge) {
     let query;
@@ -68,4 +68,22 @@ export async function getDetailChallenge(id :string ){
     console.log("data hasil fetch :", data)
     if (error) throw  error;
     return data;
+}
+
+export async function getDayExercise(id: string): Promise<ExerciseDay[]> {
+    const { data, error } = await supabase
+        .from("challenge_day_exercises")
+        .select("id, reps, duration_second, exercises(*)")
+        .eq("challenge_day_id", id);
+
+    if (error) throw error;
+
+    const result: ExerciseDay[] = (data ?? []).map((item: any) => ({
+        id: item.id,
+        reps: item.reps,
+        duration_second: item.duration_second,
+        exercise: item.exercises,
+    }));
+
+    return result;
 }

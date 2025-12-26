@@ -20,12 +20,14 @@ import { Feather, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icon
 import {ButtonOutline} from "@/components/ButtonOutline";
 import {Colors} from "@/constants/theme";
 import {DayChallenge} from "@/components/DayChallenge";
+import {router} from "expo-router";
+import {useChallenge} from "@/providers/challenge-provider";
 
 const { width } = Dimensions.get('window');
 
 export default function DetailChallenge() {
+    const {setChallenge,challenge,setChallengeDay} = useChallenge();
     const { idChallenge } = useLocalSearchParams();
-    const [challenge, setChallenge] = useImmer<ChallengeTemplate | null>(null);
     const [loading, setLoading] = useState(false);
     const [challengeDays, setChallengeDays] = useImmer<ChallengeDay[]>([]);
 
@@ -193,7 +195,10 @@ export default function DetailChallenge() {
 
             <View style={styles.containerDayList} >
                 {
-                    challengeDays.map(value => (<DayChallenge onPress={()=>{}} isActive={false} isCompleted={false} key={value.id} day={value}/>))
+                    challengeDays.map(value => (<DayChallenge onPress={()=>{
+                        setChallengeDay(value);
+                        router.push("/(day)/"+value.id)
+                    }} isActive={false} isCompleted={false} key={value.id} day={value}/>))
                 }
             </View>
 
