@@ -1,5 +1,5 @@
 import {ChallengeDay, ChallengeTemplate, ExerciseDay, WorkoutComplete} from "@/types/challenge";
-import {createContext, ReactNode, useContext} from "react";
+import {createContext, ReactNode, useContext, useState} from "react";
 import {useImmer} from "use-immer";
 import {error} from "@expo/fingerprint/cli/build/utils/log";
 
@@ -12,6 +12,8 @@ type ChallengeContextType = {
     setExerciseDays:(exerciseDay:ExerciseDay[]) => void;
     workoutCompleted:WorkoutComplete |null,
     setWorkoutCompleted:(workoutCompleted:WorkoutComplete) => void;
+    idChallengeJoin:number|null;
+    setIdChallengeJoin:(join :number)=>void;
 }
 
 const ChallengeContext = createContext<ChallengeContextType|null>(null);
@@ -21,6 +23,7 @@ export function ChallengeProvider({children }: {children: ReactNode} ) {
     const [challengeDay, setChallengeDay] = useImmer<ChallengeDay|null>(null);
     const [exerciseDays, setExerciseDays] = useImmer<ExerciseDay[]|null>(null);
     const [workoutCompleted, setWorkoutCompleted] = useImmer<WorkoutComplete|null>(null);
+    const[idChallengeJoin, setChallengeJoin] = useState<number|null>(null);
 
 
     function updateChallenge(challenge: ChallengeTemplate) {
@@ -39,6 +42,10 @@ export function ChallengeProvider({children }: {children: ReactNode} ) {
         setWorkoutCompleted(workoutCompleted)
     }
 
+    function updateIdChallengeJoin(join: number) {
+        setChallengeJoin(join);
+    }
+
     return (
         <ChallengeContext.Provider value={{
             challenge:challenge,
@@ -48,7 +55,9 @@ export function ChallengeProvider({children }: {children: ReactNode} ) {
             exerciseDays:exerciseDays,
             setExerciseDays:updateExerciseDay,
             workoutCompleted:workoutCompleted,
-            setWorkoutCompleted:updateWorkoutCompleted
+            setWorkoutCompleted:updateWorkoutCompleted,
+            idChallengeJoin:idChallengeJoin,
+            setIdChallengeJoin:updateIdChallengeJoin
         }}>
             {children}
         </ChallengeContext.Provider>

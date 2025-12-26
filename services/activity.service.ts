@@ -15,7 +15,6 @@ export const uploadActivityImages = async (userId: string, images: SelectedImage
             const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${extension}`;
             const filePath = `${userId}/${fileName}`;
 
-            // Baca file sebagai array buffer
             const response = await fetch(image.uri);
             const arrayBuffer = await response.arrayBuffer();
 

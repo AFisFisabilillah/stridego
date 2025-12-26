@@ -1,11 +1,11 @@
 import {Pressable, StyleSheet, Text, View} from "react-native";
 import {Colors} from "@/constants/theme";
 
-export function ButtonOutline({color, handlePress, style,text}: { color: string, handlePress: () => void ,style?:object, text:string}) {
+export function ButtonOutline({color, disable = false, handlePress, style,text}: { color: string,disable:boolean, handlePress: () => void ,style?:object, text:string}) {
     return (
         <>
 
-            <Pressable onPress={handlePress}>
+            <Pressable disabled={disable} onPress={handlePress}>
                 {({pressed}) => (
                     <View
                         style={[

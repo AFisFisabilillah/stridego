@@ -64,7 +64,7 @@ const DetailDay = () => {
             <FlatList
                 ListHeaderComponent={
                     <View>
-                        {idChallengeJoin &&  <ButtonOutline color={Colors.light.primary} handlePress={()=>{
+                        {idChallengeJoin &&  <ButtonOutline disable={true} color={Colors.light.primary} handlePress={()=>{
                             router.push("/(workout)/workout-player")
                         }} text={"Start"}/>}
                     </View>

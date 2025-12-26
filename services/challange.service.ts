@@ -1,5 +1,6 @@
 import {supabase} from "@/lib/supabase";
 import {ExerciseDay, FilterChallenge} from "@/types/challenge";
+import {id} from "@gorhom/bottom-sheet/src/utilities/id";
 
 export async function getChallengeAll(filter: FilterChallenge) {
     let query;
@@ -17,20 +18,18 @@ export async function getChallengeAll(filter: FilterChallenge) {
                 )
             `)
             .eq("user_id", 'dd2cf399-fc02-4c19-8c71-113e08667a56');
-    }
-    else if (["beginner", "intermediate", "advanced"].includes(filter.id)) {
+    } else if (["beginner", "intermediate", "advanced"].includes(filter.id)) {
         query = supabase
             .from("challange_templates")
             .select("*")
             .eq("level", filter.value);
-    }
-    else {
+    } else {
         query = supabase
             .from("challange_templates")
             .select("*");
     }
 
-    const { data, error } = await query;
+    const {data, error} = await query;
     console.log("query result :", data)
 
     if (error) {
@@ -46,8 +45,8 @@ export async function getChallengeAll(filter: FilterChallenge) {
     return data;
 }
 
-export async function getDetailChallenge(id :string ){
-    const { data, error } = await supabase
+export async function getDetailChallenge(id: string) {
+    const {data, error} = await supabase
         .from("challange_templates")
         .select(`
       id,
@@ -66,12 +65,12 @@ export async function getDetailChallenge(id :string ){
         .eq("id", id)
         .single();
     console.log("data hasil fetch :", data)
-    if (error) throw  error;
+    if (error) throw error;
     return data;
 }
 
 export async function getDayExercise(id: string): Promise<ExerciseDay[]> {
-    const { data, error } = await supabase
+    const {data, error} = await supabase
         .from("challenge_day_exercises")
         .select("id, reps, duration_second, exercises(*)")
         .eq("challenge_day_id", id);
@@ -86,4 +85,50 @@ export async function getDayExercise(id: string): Promise<ExerciseDay[]> {
     }));
 
     return result;
+}
+
+export async function isUserJoinChallenge(idUser: string, idChallenge: string) {
+    let join = false;
+    const {data, error} = await supabase
+        .from("user_challanges").select("id")
+        .eq("user_id", idUser)
+        .eq("challenge_id", idChallenge)
+        .maybeSingle();
+
+    if (error) throw error;
+
+    console.log("id join", data)
+    if(data){
+        join = true;
+    }
+
+    return {id:data, isJoin:join};
+}
+
+export async function joinChallenge(idChallenge:string,idUser:string) {
+    const {data, error} = await supabase
+        .from("user_challanges")
+        .insert({
+            user_id: idUser,
+            challenge_id:idChallenge
+        }).select("id")
+        .maybeSingle();
+
+    if (error) throw error;
+    return data;
+}
+
+export async function saveProgressChallenge(userChallengeId:number | null,challengeDayId:number|undefined){
+    console.log(challengeDayId);
+    console.log(userChallengeId);
+    const {data, error} = await supabase
+        .from("user_challenge_days")
+        //@ts-ignore
+        .insert({
+            user_challenge_id:userChallengeId,
+            challenge_days_id:challengeDayId,
+            is_completed:true.valueOf()
+        }).select("id");
+    if (error) throw error;
+    return data;
 }

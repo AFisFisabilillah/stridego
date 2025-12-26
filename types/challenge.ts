@@ -61,6 +61,14 @@ export enum WorkoutStatus {
     COMPLETED = 'completed'
 }
 
+export interface ChallengeDayComplete {
+    id: number;
+    user_challenge_id: string;
+    challenge_day_id: number;
+    is_completed: boolean;
+    created_at: string;
+}
+
 export type WorkoutPhase = 'exercise' | 'rest';
 export interface WorkoutComplete {
     completedCount:number,
