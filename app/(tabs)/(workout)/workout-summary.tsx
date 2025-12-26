@@ -28,7 +28,6 @@ const WorkoutSummaryScreen: React.FC = () => {
             <Stack.Screen options={{ title: 'Workout Complete!', headerShown: false }} />
 
             <ScrollView contentContainerStyle={styles.content}>
-                {/* Celebration */}
                 <View style={styles.celebration}>
                     <View style={styles.iconContainer}>
                         <Ionicons name="trophy" size={80} color={Colors.light.warning} />
@@ -37,7 +36,6 @@ const WorkoutSummaryScreen: React.FC = () => {
                     <Text style={styles.subtitle}>Great job completing your workout</Text>
                 </View>
 
-                {/* Stats Cards */}
                 <View style={styles.statsGrid}>
                     <View style={styles.statCard}>
                         <Ionicons name="checkmark-circle" size={32} color={Colors.light.success} />
@@ -58,7 +56,6 @@ const WorkoutSummaryScreen: React.FC = () => {
                     </View>
                 </View>
 
-                {/* Action Buttons */}
                 <View style={styles.actions}>
                     <TouchableOpacity
                         style={[styles.button, styles.primaryButton]}

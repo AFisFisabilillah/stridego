@@ -6,7 +6,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Dimensions,
-    Alert,
+    Alert, ScrollView,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Stack } from 'expo-router';
@@ -20,7 +20,7 @@ import {useChallenge} from "@/providers/challenge-provider";
 import {SafeAreaView} from "react-native-safe-area-context";
 
 const { width, height } = Dimensions.get('window');
-const REST_DURATION = 10;
+const REST_DURATION = 120;
 
 
 
@@ -46,7 +46,6 @@ const WorkoutPlayerScreen: React.FC = () => {
     const currentExercise = exercises[currentIndex];
     const isLastExercise = currentIndex === exercises.length - 1;
 
-    // Initialize timer based on exercise type
     useEffect(() => {
         if (currentExercise) {
             if (currentExercise.duration_second > 0) {
@@ -68,7 +67,6 @@ const WorkoutPlayerScreen: React.FC = () => {
         }, 1000);
     }, []);
 
-    // Stop workout timer
     const stopWorkoutTimer = useCallback(() => {
         if (timerRef.current) {
             clearInterval(timerRef.current);
@@ -76,7 +74,6 @@ const WorkoutPlayerScreen: React.FC = () => {
         }
     }, []);
 
-    // Start exercise timer (for duration-based exercises)
     const startExerciseTimer = useCallback(() => {
         if (currentExercise.duration_second > 0) {
             //@ts-ignore
@@ -92,12 +89,9 @@ const WorkoutPlayerScreen: React.FC = () => {
         }
     }, [currentExercise]);
 
-    // Handle exercise completion
     const handleExerciseComplete = useCallback(() => {
-        // Stop current timer
         stopWorkoutTimer();
 
-        // Mark exercise as completed
         setCompletedExercises(prev => [...prev, currentExercise.id]);
 
         if (!isLastExercise) {
@@ -120,17 +114,14 @@ const WorkoutPlayerScreen: React.FC = () => {
         }
     }, [currentExercise, isLastExercise, stopWorkoutTimer]);
 
-    // Handle rest completion
     const handleRestComplete = useCallback(() => {
         stopWorkoutTimer();
         setPhase('exercise');
         setWorkoutStatus(WorkoutStatus.IDLE);
 
-        // Move to next exercise
         setCurrentIndex(prev => prev + 1);
     }, [stopWorkoutTimer]);
 
-    // Skip rest period
     const handleSkipRest = useCallback(() => {
         stopWorkoutTimer();
         setPhase('exercise');
@@ -148,7 +139,6 @@ const WorkoutPlayerScreen: React.FC = () => {
         }
     }, [startWorkoutTimer, startExerciseTimer]);
 
-    // Handle next button press
     const handleNext = useCallback(() => {
         if (workoutStatus === WorkoutStatus.ACTIVE) {
             // If exercise is active, mark as completed
@@ -173,6 +163,7 @@ const WorkoutPlayerScreen: React.FC = () => {
                 totalTime: totalWorkoutTime,
             },
         });
+
         router.push({
             pathname: '/workout-summary',
         });
@@ -247,6 +238,7 @@ const WorkoutPlayerScreen: React.FC = () => {
                 }}
             />
 
+
             {/* Progress Bar */}
             <View style={styles.progressContainer}>
                 <View style={styles.progressBar}>
@@ -262,12 +254,9 @@ const WorkoutPlayerScreen: React.FC = () => {
                 </Text>
             </View>
 
-            {/* Exercise Content */}
-            <View style={styles.content}>
-                {/* Exercise Name */}
+            <ScrollView style={styles.content}>
                 <Text style={styles.exerciseName}>{currentExercise.exercise.name}</Text>
 
-                {/* Animation/Lottie */}
                 <View style={styles.animationContainer}>
                     {currentExercise.exercise.image ? (
                         <LottieView
@@ -303,7 +292,6 @@ const WorkoutPlayerScreen: React.FC = () => {
                     )}
                 </View>
 
-                {/* Target Muscles */}
                 <View style={styles.musclesContainer}>
                     <Text style={styles.musclesLabel}>Target Muscles:</Text>
                     <View style={styles.muscleTags}>
@@ -357,7 +345,7 @@ const WorkoutPlayerScreen: React.FC = () => {
                         </TouchableOpacity>
                     )}
                 </View>
-            </View>
+            </ScrollView>
         </SafeAreaView>
     );
 };

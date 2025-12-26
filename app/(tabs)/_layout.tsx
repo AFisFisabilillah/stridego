@@ -7,17 +7,13 @@ export default function TabsLayout() {
         <>
             <GestureHandlerRootView style={{flex: 1}}>
                 <ChallengeProvider>
-                    <Tabs screenOptions={{
-                        headerShown: false
-                    }}>
-                        <Tabs.Screen name={"index"}/>
-                        <Tabs.Screen name={"(workout)/workout"}/>
-                        <Tabs.Screen name={"(workout)/[idChallenge]"}/>
-                        <Tabs.Screen name={"(workout)/(day)/[idDay]"}/>
-                        <Tabs.Screen options={{
-                            title: "Run",
-                            tabBarStyle: {display: "none"}
-                        }} name={"(tracking)"}/>
+                    <Tabs screenOptions={{ headerShown: false }}>
+                        <Tabs.Screen name="index" />
+                        <Tabs.Screen name="(workout)" options={{ title: "Workout" ,tabBarStyle: { display: "none" }}} />
+                        <Tabs.Screen
+                            name="(tracking)"
+                            options={{ title: "Run", tabBarStyle: { display: "none" } }}
+                        />
                     </Tabs>
                 </ChallengeProvider>
             </GestureHandlerRootView>
