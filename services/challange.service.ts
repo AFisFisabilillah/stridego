@@ -119,8 +119,6 @@ export async function joinChallenge(idChallenge:string,idUser:string) {
 }
 
 export async function saveProgressChallenge(userChallengeId:number | null,challengeDayId:number|undefined){
-    console.log(challengeDayId);
-    console.log(userChallengeId);
     const {data, error} = await supabase
         .from("user_challenge_days")
         //@ts-ignore
@@ -131,4 +129,27 @@ export async function saveProgressChallenge(userChallengeId:number | null,challe
         }).select("id");
     if (error) throw error;
     return data;
+}
+
+export async function getChallengeDayComplete(idUser:string, idChallenge:string){
+    if (!idUser){
+        return [];
+    }
+    const {data, error} = await supabase
+        .from("user_challenge_days")
+        .select("challenge_days(id)")
+        .eq("user_challenge_id", idUser)
+        .eq("challenge_days.challenge_id", idChallenge);
+
+    if (error) throw error;
+    if(data?.length === 0 ){
+        return [];
+    }
+    const newData = data?.map((item: any) => {
+        if(!item.challenge_days){
+            return;
+        }
+        return item.challenge_days.id;
+    });
+    return newData;
 }

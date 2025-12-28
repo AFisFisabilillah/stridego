@@ -44,11 +44,11 @@ const ChallengeTemplateCard: React.FC<ChallengeTemplateCardProps> = ({
     const getLevelIcon = (level: string) => {
         switch (level.toLowerCase()) {
             case 'beginner':
-                return 'trending-up';
+                return 'fire';
             case 'intermediate':
-                return 'activity';
+                return 'fire';
             case 'advanced':
-                return 'award';
+                return 'fire';
             default:
                 return 'flag';
         }

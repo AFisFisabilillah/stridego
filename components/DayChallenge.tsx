@@ -71,9 +71,7 @@ export const DayChallenge: React.FC<DayChallengeProps> = ({
                         color={getDayIconColor()}
                     />
                 </View>
-                <Text style={styles.dayNumberText}>
-                    {day.day_number}
-                </Text>
+
             </View>
 
             {/* Content */}
