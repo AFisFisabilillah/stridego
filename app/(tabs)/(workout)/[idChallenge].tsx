@@ -13,7 +13,12 @@ import {
 import { Image } from "expo-image";
 import { useImmer } from "use-immer";
 import {ChallengeDay, ChallengeTemplate} from "@/types/challenge";
-import {getDetailChallenge, isUserJoinChallenge, joinChallenge} from "@/services/challange.service";
+import {
+    getChallengeDayComplete,
+    getDetailChallenge,
+    isUserJoinChallenge,
+    joinChallenge
+} from "@/services/challange.service";
 import { useEffect, useState } from "react";
 import { LinearGradient } from "expo-linear-gradient";
 import { Feather, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
@@ -30,13 +35,14 @@ const { width } = Dimensions.get('window');
 
 export default function DetailChallenge() {
     const idUser = useAuthContext().session?.user.id;
-    const {setChallenge,challenge,setChallengeDay,setIdChallengeJoin} = useChallenge();
+    const {setChallenge,challenge,setChallengeDay,setIdChallengeJoin, idChallengeJoin} = useChallenge();
     const { idChallenge } = useLocalSearchParams();
     const [loading, setLoading] = useState(false);
     const [challengeDays, setChallengeDays] = useImmer<ChallengeDay[]>([]);
     const [loadingJoin, setLoadingJoin] = useState<boolean>(false);
     const [join,setJoin] = useState<boolean>(false);
     const [modal,setModal] = useState<boolean>(false);
+    const [dayComplete , setDayComplete] = useState<number[]>([]);
 
     const fetchChallenge = async (idChallenge: string) => {
         try {
@@ -55,14 +61,24 @@ export default function DetailChallenge() {
         }
     };
 
+    const fetchChallengeDayComplete = async (idChallenge: string) => {
+      if(idChallenge){
+          //@ts-ignore
+          const data = await getChallengeDayComplete(idChallengeJoin, idChallenge)
+          setDayComplete(data)
+      }
+    }
     const checkUserJoin = async (idUser:string , idChallenge:string)=>{
         const {id, isJoin} = await isUserJoinChallenge(idUser,idChallenge);
         setJoin(isJoin);
-        //@ts-ignore
-        setIdChallengeJoin(id.id);
+        if (join){
+            //@ts-ignore
+            setIdChallengeJoin(id.id);
+        }
     }
 
     useEffect(() => {
+        fetchChallengeDayComplete(idChallenge as string);
         fetchChallenge(idChallenge as string);
         //@ts-ignore
         checkUserJoin(idUser,idChallenge);
@@ -220,7 +236,7 @@ export default function DetailChallenge() {
                         setChallengeDay(value);
                         //@ts-ignore
                         router.push("/(day)/"+value.id)
-                    }} isActive={false} isCompleted={false} key={value.id} day={value}/>))
+                    }} isActive={false} isCompleted={dayComplete.includes(value.id)} key={value.id} day={value}/>))
                 }
             </View>
             <SuccessModal visible={modal} onClose={()=> {setModal(false)}}/>
