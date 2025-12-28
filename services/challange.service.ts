@@ -1,6 +1,7 @@
 import {supabase} from "@/lib/supabase";
 import {ExerciseDay, FilterChallenge} from "@/types/challenge";
 import {id} from "@gorhom/bottom-sheet/src/utilities/id";
+import {totalmem} from "node:os";
 
 export async function getChallengeAll(filter: FilterChallenge) {
     let query;
@@ -118,14 +119,19 @@ export async function joinChallenge(idChallenge:string,idUser:string) {
     return data;
 }
 
-export async function saveProgressChallenge(userChallengeId:number | null,challengeDayId:number|undefined){
+export async function saveProgressChallenge(userChallengeId:number | null,challengeDayId:number|undefined,avCalorie:number,totalTime:number,completedExercise:string
+,idActivity:string){
     const {data, error} = await supabase
         .from("user_challenge_days")
         //@ts-ignore
         .insert({
             user_challenge_id:userChallengeId,
             challenge_days_id:challengeDayId,
-            is_completed:true.valueOf()
+            is_completed:true.valueOf(),
+            avg_calorie:avCalorie,
+            total_time:totalTime,
+            completed_exercise:completedExercise,
+            activity_id:idActivity
         }).select("id");
     if (error) throw error;
     return data;

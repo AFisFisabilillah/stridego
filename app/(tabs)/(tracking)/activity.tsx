@@ -33,7 +33,7 @@ type ActivityState = {
     images: SelectedImage[]
 }
 
-const VISIBILITIES: Visibility[] = [
+export const VISIBILITIES: Visibility[] = [
     {
         name: "private",
         icon: <FontAwesome name="lock" size={24} color="black"/>,
@@ -106,7 +106,6 @@ export default function CreateActivity() {
         }
     }, [activityRun, profile.weight]);
 
-    // Fungsi untuk menampilkan notifikasi sukses
     const showSuccessAnimation = () => {
         setIsSuccess(true);
         Animated.sequence([

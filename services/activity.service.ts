@@ -3,6 +3,8 @@ import {supabase} from "@/lib/supabase";
 import {Activity, ActivityRunning} from "@/types/activities";
 import {SelectedImage} from "@/components/ImagePicker";
 import * as FileSystem from 'expo-file-system';
+import {WorkoutComplete} from "@/types/challenge";
+import {saveProgressChallenge} from "@/services/challange.service";
 export const uploadActivityImages = async (userId: string, images: SelectedImage[]): Promise<string[]> => {
     try {
         const uploadPromises = images.map(async (image) => {
@@ -163,7 +165,6 @@ export const getActivityImages = async (activityId: string): Promise<string[]> =
 // Fungsi untuk menghapus gambar activity
 export const deleteActivityImages = async (activityId: string): Promise<void> => {
     try {
-        // Dapatkan semua gambar untuk activity ini
         const { data: images, error: fetchError } = await supabase
             .from('activities_images')
             .select('image_url')
@@ -171,7 +172,6 @@ export const deleteActivityImages = async (activityId: string): Promise<void> =>
 
         if (fetchError) throw fetchError;
 
-        // Hapus dari storage
         if (images && images.length > 0) {
             const filePaths = images.map(item => {
                 const urlObj = new URL(item.image_url);
@@ -183,7 +183,6 @@ export const deleteActivityImages = async (activityId: string): Promise<void> =>
                 .remove(filePaths);
         }
 
-        // Hapus dari database
         const { error: deleteError } = await supabase
             .from('activities_images')
             .delete()
@@ -196,3 +195,59 @@ export const deleteActivityImages = async (activityId: string): Promise<void> =>
         throw error;
     }
 };
+
+export const createActivityChallenge= async (activity:Activity,images:SelectedImage[],idChallengeJoin:any,idDays:any,challengeComplete:WorkoutComplete )=>{
+    let imageUrls: string[] = [];
+    let uploadedFilePaths: string[] = [];
+    try {
+        if (images.length > 0) {
+            imageUrls = await uploadActivityImages(activity.user_id, images);
+
+            uploadedFilePaths = imageUrls.map(url => {
+                const urlObj = new URL(url);
+                return urlObj.pathname.split('/').slice(3).join('/');
+            });
+        }
+
+        console.log('user id ', activity.user_id);
+
+        const { data: activityData, error: activityError } = await supabase
+            .from("activities")
+            .insert({
+                title: activity.title,
+                type: activity.type,
+                description: activity.description,
+                visibility: activity.visibility,
+                calorie: activity.calorie,
+                duration: activity.duration,
+                user_id: activity.user_id,
+            })
+            .select("id")
+            .single();
+
+        if (activityError) throw activityError;
+
+        //@ts-ignore
+        const data = await saveProgressChallenge(idChallengeJoin, idDays,challengeComplete.avgCalorie,challengeComplete.totalTime,challengeComplete.completed_exercise,activityData.id);
+
+        if (imageUrls.length > 0) {
+            const imageRecords = imageUrls.map(url => ({
+                image_url: url,
+                //@ts-ignore
+                activity_id: activityData.id
+            }));
+
+            const { error: imagesError } = await supabase
+                .from("activities_images")
+                .insert(imageRecords);
+
+            if (imagesError) {
+                throw imagesError;
+            }
+        }
+
+    }catch (e) {
+        throw e;
+    }
+
+}

@@ -15,7 +15,7 @@ import {router} from "expo-router";
 
 const DetailDay = () => {
     const {idDay} = useLocalSearchParams();
-    const {exerciseDays, setExerciseDays,idChallengeJoin} = useChallenge();
+    const {exerciseDays,challengeDay, setExerciseDays, idChallengeJoin} = useChallenge();
     const [exerciseDetail, setExerciseDetail] = useImmer<Exercise | null>(null);
     const [exercises, setExercises] = useImmer<ExerciseDay[]>([]);
     const [currentExerciseDay, setCurrentExerciseDay] = useImmer<ExerciseDay | null>(null);
@@ -31,7 +31,9 @@ const DetailDay = () => {
     }
 
     useEffect(() => {
+        console.log("id_challenge join", idChallengeJoin)
         fetchExercise();
+        console.log("idChallengeJoin", idChallengeJoin)
     }, [idDay]);
 
     const handleOnPress = (item: ExerciseDay) => {
@@ -63,11 +65,25 @@ const DetailDay = () => {
         <>
             <FlatList
                 ListHeaderComponent={
-                    <View>
-                        {idChallengeJoin &&  <ButtonOutline disable={true} color={Colors.light.primary} handlePress={()=>{
-                            router.push("/(workout)/workout-player")
-                        }} text={"Start"}/>}
-                    </View>
+                    challengeDay && (
+                        <View style={styles.headerWrapper}>
+                            <View style={styles.headerCard}>
+                                <View style={styles.dayBadge}>
+                                    <Text style={styles.dayText}>
+                                        Day {challengeDay.day_number}
+                                    </Text>
+                                </View>
+
+                                <Text style={styles.headerTitle}>
+                                    {challengeDay.title}
+                                </Text>
+
+                                <Text style={styles.headerSubtitle}>
+                                    Complete all exercises below to finish this day
+                                </Text>
+                            </View>
+                        </View>
+                    )
                 }
                 style={styles.containerExercise}
                 data={exercises}
@@ -82,7 +98,11 @@ const DetailDay = () => {
                 )}
                 contentContainerStyle={styles.listContainer}
             />
-
+            <View style={styles.containerButtonStart}>
+                {idChallengeJoin !== null &&  <ButtonOutline disable={false} color={Colors.light.primary} handlePress={() => {
+                    router.push("/(workout)/workout-player")
+                }} text={"Start"}/>}
+            </View>
 
 
             <BottomSheet
@@ -250,9 +270,68 @@ const DetailDay = () => {
 export default DetailDay;
 
 const styles = StyleSheet.create({
+    headerWrapper: {
+
+        backgroundColor: Colors.light.background,
+    },
+
+    headerCard: {
+        backgroundColor: Colors.light.card,
+        borderRadius: 20,
+        padding: 20,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.08,
+        shadowRadius: 12,
+        elevation: 4,
+    },
+
+    dayBadge: {
+        alignSelf: "flex-start",
+        backgroundColor: Colors.light.primary + "15",
+        paddingHorizontal: 14,
+        paddingVertical: 6,
+        borderRadius: 999,
+        marginBottom: 12,
+    },
+
+    dayText: {
+        fontSize: 13,
+        fontWeight: "600",
+        color: Colors.light.primary,
+    },
+
+    headerTitle: {
+        fontSize: 22,
+        fontWeight: "700",
+        color: Colors.light.text,
+        marginBottom: 6,
+    },
+
+    headerSubtitle: {
+        fontSize: 14,
+        color: Colors.light.textSecondary,
+        lineHeight: 20,
+    },
+
     containerExercise: {
         flex: 1,
         backgroundColor: Colors.light.background,
+    },
+
+    containerHeader:{
+        borderWidth:4,
+        paddingHorizontal:10
+    },
+    containerButtonStart: {
+        paddingBottom: 33,
+        borderTopRightRadius:16,
+        borderTopLeftRadius:16,
+        paddingHorizontal:10,
+        backgroundColor:"#ffffff",
+        borderWidth:1,
+        borderColor:"#e2e2e2",
+        paddingTop:12
     },
     listContainer: {
         paddingHorizontal: 10,

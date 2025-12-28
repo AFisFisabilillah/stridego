@@ -20,6 +20,7 @@ import {useChallenge} from "@/providers/challenge-provider";
 import {SafeAreaView} from "react-native-safe-area-context";
 import {saveProgressChallenge} from "@/services/challange.service";
 import {useAuthContext} from "@/hooks/use-auth-contex";
+import {calculateCaloriesFromExercises} from "@/utils/calculateCalories";
 
 const { width, height } = Dimensions.get('window');
 const REST_DURATION = 120;
@@ -30,6 +31,7 @@ const WorkoutPlayerScreen: React.FC = () => {
     const router = useRouter();
     const {exerciseDays,setWorkoutCompleted, challengeDay,idChallengeJoin} = useChallenge();
     const userId = useAuthContext().session?.user.id;
+    const weight = useAuthContext().profile.weight;
     // @ts-ignore
     const exercises: ExerciseDay[] = exerciseDays;
 
@@ -154,21 +156,19 @@ const WorkoutPlayerScreen: React.FC = () => {
 
     const handleWorkoutComplete = useCallback(async () => {
         stopWorkoutTimer();
+        const calorie = calculateCaloriesFromExercises(exercises.map(value => value.exercise), totalWorkoutTime, weight);
         setWorkoutStatus(WorkoutStatus.COMPLETED);
-        try {
-            const data = saveProgressChallenge(idChallengeJoin, challengeDay?.id);
-        }catch (e) {
-            console.error(e);
-        }
+        // try {
+        //     const data = saveProgressChallenge(idChallengeJoin, challengeDay?.id,calorie,totalWorkoutTime,`${completedExercises.length}/${exercises.length}`);
+        // }catch (e) {
+        //     console.error(e);
+        // }
         setWorkoutCompleted({
-            completedCount: completedExercises.length,
             totalExercises: exercises.length,
             totalTime: totalWorkoutTime,
-            workoutData: {
-                exercises: exercises,
-                completed: completedExercises,
-                totalTime: totalWorkoutTime,
-            },
+            //@ts-ignore
+            avgCalorie:calorie,
+            completed_exercise:`${completedExercises.length}/${exercises.length}`
         });
 
         router.push({

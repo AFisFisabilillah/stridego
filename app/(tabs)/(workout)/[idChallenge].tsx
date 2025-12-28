@@ -1,5 +1,5 @@
-import { useLocalSearchParams } from "expo-router/build/hooks";
-import { SafeAreaView } from "react-native-safe-area-context";
+import {useLocalSearchParams} from "expo-router/build/hooks";
+import {SafeAreaView} from "react-native-safe-area-context";
 import {
     ActivityIndicator,
     StyleSheet,
@@ -10,8 +10,8 @@ import {
     ScrollView,
     FlatList
 } from "react-native";
-import { Image } from "expo-image";
-import { useImmer } from "use-immer";
+import {Image} from "expo-image";
+import {useImmer} from "use-immer";
 import {ChallengeDay, ChallengeTemplate} from "@/types/challenge";
 import {
     getChallengeDayComplete,
@@ -19,9 +19,9 @@ import {
     isUserJoinChallenge,
     joinChallenge
 } from "@/services/challange.service";
-import { useEffect, useState } from "react";
-import { LinearGradient } from "expo-linear-gradient";
-import { Feather, MaterialCommunityIcons, FontAwesome5 } from "@expo/vector-icons";
+import {useEffect, useState} from "react";
+import {LinearGradient} from "expo-linear-gradient";
+import {Feather, MaterialCommunityIcons, FontAwesome5} from "@expo/vector-icons";
 import {ButtonOutline} from "@/components/ButtonOutline";
 import {Colors} from "@/constants/theme";
 import {DayChallenge} from "@/components/DayChallenge";
@@ -31,18 +31,18 @@ import {useAuthContext} from "@/hooks/use-auth-contex";
 import Button from "@/components/Button";
 import SuccessModal from "@/components/SuccessModal";
 
-const { width } = Dimensions.get('window');
+const {width} = Dimensions.get('window');
 
 export default function DetailChallenge() {
     const idUser = useAuthContext().session?.user.id;
-    const {setChallenge,challenge,setChallengeDay,setIdChallengeJoin, idChallengeJoin} = useChallenge();
-    const { idChallenge } = useLocalSearchParams();
+    const {setChallenge, challenge, setChallengeDay, setIdChallengeJoin, idChallengeJoin} = useChallenge();
+    const {idChallenge} = useLocalSearchParams();
     const [loading, setLoading] = useState(false);
     const [challengeDays, setChallengeDays] = useImmer<ChallengeDay[]>([]);
     const [loadingJoin, setLoadingJoin] = useState<boolean>(false);
-    const [join,setJoin] = useState<boolean>(false);
-    const [modal,setModal] = useState<boolean>(false);
-    const [dayComplete , setDayComplete] = useState<number[]>([]);
+    const [join, setJoin] = useState<boolean>(false);
+    const [modal, setModal] = useState<boolean>(false);
+    const [dayComplete, setDayComplete] = useState<number[]>([]);
 
     const fetchChallenge = async (idChallenge: string) => {
         try {
@@ -62,50 +62,59 @@ export default function DetailChallenge() {
     };
 
     const fetchChallengeDayComplete = async (idChallenge: string) => {
-      if(idChallenge){
-          //@ts-ignore
-          const data = await getChallengeDayComplete(idChallengeJoin, idChallenge)
-          setDayComplete(data)
-      }
-    }
-    const checkUserJoin = async (idUser:string , idChallenge:string)=>{
-        const {id, isJoin} = await isUserJoinChallenge(idUser,idChallenge);
-        setJoin(isJoin);
-        if (join){
+        if (idChallenge) {
+            setLoading(true);
             //@ts-ignore
-            setIdChallengeJoin(id.id);
+            const data = await getChallengeDayComplete(idChallengeJoin, idChallenge)
+            setDayComplete(data);
+            setLoading(false);
         }
+    }
+    const checkUserJoin = async (idUser: string, idChallenge: string) => {
+        const {id, isJoin} = await isUserJoinChallenge(idUser, idChallenge);
+        setJoin(isJoin);
+        setLoading(true);
+        //@ts-ignore
+        setIdChallengeJoin(id.id);
+        setLoading(false);
     }
 
     useEffect(() => {
         fetchChallengeDayComplete(idChallenge as string);
         fetchChallenge(idChallenge as string);
-        //@ts-ignore
-        checkUserJoin(idUser,idChallenge);
+        checkUserJoin(idUser, idChallenge);
     }, [idChallenge]);
 
     const getLevelColor = (level: string) => {
-        switch(level) {
-            case 'beginner': return '#10B981';
-            case 'intermediate': return '#F59E0B';
-            case 'advanced': return '#EF4444';
-            default: return '#6B7280';
+        switch (level) {
+            case 'beginner':
+                return '#10B981';
+            case 'intermediate':
+                return '#F59E0B';
+            case 'advanced':
+                return '#EF4444';
+            default:
+                return '#6B7280';
         }
     };
 
     const getLevelIcon = (level: string) => {
-        switch(level) {
-            case 'beginner': return 'seedling';
-            case 'intermediate': return 'chart-line';
-            case 'advanced': return 'fire';
-            default: return 'star';
+        switch (level) {
+            case 'beginner':
+                return 'seedling';
+            case 'intermediate':
+                return 'chart-line';
+            case 'advanced':
+                return 'fire';
+            default:
+                return 'star';
         }
     };
 
     if (loading || !challenge) {
         return (
             <SafeAreaView style={styles.loadingContainer}>
-                <ActivityIndicator size="large" color="#6366F1" />
+                <ActivityIndicator size="large" color="#6366F1"/>
             </SafeAreaView>
         );
     }
@@ -117,15 +126,15 @@ export default function DetailChallenge() {
             //@ts-ignore
             const data = await joinChallenge(idChallenge, idUser);
             console.log("joinChallenge", data);
-            if(data){
+            if (data) {
                 setModal(true);
                 //@ts-ignore
                 setIdChallengeJoin(data.id);
                 setJoin(true);
             }
-        }catch(error){
+        } catch (error) {
             console.log(error)
-        }finally {
+        } finally {
             setLoadingJoin(false);
         }
 
@@ -137,7 +146,7 @@ export default function DetailChallenge() {
             <View style={styles.heroContainer}>
                 <Image
                     style={styles.heroImage}
-                    source={{ uri: challenge.cover_image_url || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800' }}
+                    source={{uri: challenge.cover_image_url || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800'}}
                     transition={300}
                     contentFit="cover"
                 />
@@ -154,7 +163,7 @@ export default function DetailChallenge() {
                                 size={12}
                                 color="white"
                             />
-                            <Text style={[styles.levelText, { color: getLevelColor(challenge.level) }]}>
+                            <Text style={[styles.levelText, {color: getLevelColor(challenge.level)}]}>
                                 {challenge.level.toUpperCase()}
                             </Text>
                         </View>
@@ -164,7 +173,7 @@ export default function DetailChallenge() {
                         </Text>
 
                         <View style={styles.durationBadge}>
-                            <Feather name="calendar" size={16} color="#6366F1" />
+                            <Feather name="calendar" size={16} color="#6366F1"/>
                             <Text style={styles.durationText}>
                                 {challenge.duration_days} days challenge
                             </Text>
@@ -177,18 +186,18 @@ export default function DetailChallenge() {
                 {/* Info Cards */}
                 <View style={styles.infoGrid}>
                     <View style={styles.infoCard}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#EEF2FF' }]}>
-                            <Feather name="target" size={24} color="#6366F1" />
+                        <View style={[styles.iconContainer, {backgroundColor: '#EEF2FF'}]}>
+                            <Feather name="target" size={24} color="#6366F1"/>
                         </View>
                         <Text style={styles.infoLabel}>Level</Text>
-                        <Text style={[styles.infoValue, { color: getLevelColor(challenge.level) }]}>
+                        <Text style={[styles.infoValue, {color: getLevelColor(challenge.level)}]}>
                             {challenge.level}
                         </Text>
                     </View>
 
                     <View style={styles.infoCard}>
-                        <View style={[styles.iconContainer, { backgroundColor: '#F0FDF4' }]}>
-                            <Feather name="clock" size={24} color="#10B981" />
+                        <View style={[styles.iconContainer, {backgroundColor: '#F0FDF4'}]}>
+                            <Feather name="clock" size={24} color="#10B981"/>
                         </View>
                         <Text style={styles.infoLabel}>Duration</Text>
                         <Text style={styles.infoValue}>{challenge.duration_days} days</Text>
@@ -198,7 +207,7 @@ export default function DetailChallenge() {
                 {/* Description Card */}
                 <View style={styles.descriptionCard}>
                     <View style={styles.sectionHeader}>
-                        <Feather name="align-left" size={20} color="#374151" />
+                        <Feather name="align-left" size={20} color="#374151"/>
                         <Text style={styles.sectionTitle}>About This Challenge</Text>
                     </View>
 
@@ -213,33 +222,42 @@ export default function DetailChallenge() {
                         <Text style={styles.statValue}>0</Text>
                         <Text style={styles.statLabel}>Participants</Text>
                     </View>
-                    <View style={styles.statDivider} />
+                    <View style={styles.statDivider}/>
                     <View style={styles.statItem}>
                         <Text style={styles.statValue}>0%</Text>
                         <Text style={styles.statLabel}>Completion Rate</Text>
                     </View>
-                    <View style={styles.statDivider} />
+                    <View style={styles.statDivider}/>
                     <View style={styles.statItem}>
                         <Text style={styles.statValue}>0</Text>
                         <Text style={styles.statLabel}>Active Now</Text>
                     </View>
                 </View>
                 {
-                    join ? (<Button handlePress={()=>{}} color={Colors.light.success} label={"Joined"}/> ): (<ButtonOutline disable={loadingJoin} color={Colors.light.primary} handlePress={handleJoinChallenge} text={"Start"}/>
+                    join ? (<Button handlePress={() => {
+                    }} color={Colors.light.success} label={"Joined"}/>) : (
+                        <ButtonOutline disable={loadingJoin} color={Colors.light.primary}
+                                       handlePress={handleJoinChallenge} text={"Start"}/>
                     )
                 }
             </View>
 
-            <View style={styles.containerDayList} >
+            <View style={styles.containerDayList}>
                 {
-                    challengeDays.map(value => (<DayChallenge onPress={()=>{
+                    challengeDays.map(value => (dayComplete.includes(value.id) ?  <DayChallenge onPress={() => {
                         setChallengeDay(value);
                         //@ts-ignore
-                        router.push("/(day)/"+value.id)
-                    }} isActive={false} isCompleted={dayComplete.includes(value.id)} key={value.id} day={value}/>))
+                        router.push("/(day)/" + value.id)
+                    }} isActive={false} isCompleted={true} key={value.id} day={value}/> : <DayChallenge onPress={() => {
+                        setChallengeDay(value);
+                        //@ts-ignore
+                        router.push("/(day)/" + value.id)
+                    }} isActive={false} isCompleted={false} key={value.id} day={value}/> ))
                 }
             </View>
-            <SuccessModal visible={modal} onClose={()=> {setModal(false)}}/>
+            <SuccessModal visible={modal} onClose={() => {
+                setModal(false)
+            }}/>
         </ScrollView>
     );
 }
@@ -300,7 +318,7 @@ const styles = StyleSheet.create({
         lineHeight: 38,
         textTransform: 'capitalize',
         textShadowColor: 'rgba(0,0,0,0.5)',
-        textShadowOffset: { width: 0, height: 2 },
+        textShadowOffset: {width: 0, height: 2},
         textShadowRadius: 4,
     },
     durationBadge: {
@@ -338,7 +356,7 @@ const styles = StyleSheet.create({
         padding: 16,
         alignItems: 'center',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
@@ -367,7 +385,7 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         padding: 20,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
@@ -395,7 +413,7 @@ const styles = StyleSheet.create({
         padding: 24,
         justifyContent: 'space-between',
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
@@ -423,7 +441,7 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         overflow: 'hidden',
         shadowColor: '#6366F1',
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: {width: 0, height: 4},
         shadowOpacity: 0.3,
         shadowRadius: 12,
         elevation: 8,
@@ -446,7 +464,7 @@ const styles = StyleSheet.create({
         padding: 20,
         gap: 12,
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
+        shadowOffset: {width: 0, height: 2},
         shadowOpacity: 0.05,
         shadowRadius: 8,
         elevation: 2,
@@ -462,7 +480,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
 
-    containerDayList:{
-        paddingHorizontal:12,
+    containerDayList: {
+        paddingHorizontal: 12,
     }
 });

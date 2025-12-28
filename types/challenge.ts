@@ -71,12 +71,8 @@ export interface ChallengeDayComplete {
 
 export type WorkoutPhase = 'exercise' | 'rest';
 export interface WorkoutComplete {
-    completedCount:number,
     totalExercises:number,
     totalTime:number,
-    workoutData:{
-        exercises: ExerciseDay[],
-        completed:number[],
-        totalTime:number,
-    }
+    avgCalorie:number,
+    completed_exercise:string,
 }
