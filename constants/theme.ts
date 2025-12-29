@@ -29,6 +29,7 @@ export const Colors = {
     gradientStart: '#6366F1',
     gradientEnd: '#8B5CF6',
     tabIconSelected: tintColorLight,
+    gray:"#e1e1e1"
   },
   dark: {
     text: '#ECEDEE',

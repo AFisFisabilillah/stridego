@@ -20,6 +20,7 @@ import {getChallengeAll} from "@/services/challange.service";
 import {useImmer} from "use-immer";
 import {useAuthContext} from "@/hooks/use-auth-contex";
 import {router} from "expo-router";
+import {ButtonOutline} from "@/components/ButtonOutline";
 
 const filters:FilterChallenge[] = [
     { id: 'all', label: 'All Challenges',value:"all"},
@@ -131,6 +132,9 @@ const ChallengeListScreen = () => {
                         tintColor={Colors.light.primary}
                     />
                 }
+                ListFooterComponent={(
+                    <ButtonOutline color={"red"} disable={false} handlePress={()=>{router.replace("/(custom-workout)/")}} text={"test"}/>
+                )}
                 contentContainerStyle={styles.listContent}
                 renderItem={({item})=>{
                     return(

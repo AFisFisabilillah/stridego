@@ -5,6 +5,7 @@ import {SelectedImage} from "@/components/ImagePicker";
 import * as FileSystem from 'expo-file-system';
 import {WorkoutComplete} from "@/types/challenge";
 import {saveProgressChallenge} from "@/services/challange.service";
+import {createUserCustomWorkout} from "@/services/custom-workout.service";
 export const uploadActivityImages = async (userId: string, images: SelectedImage[]): Promise<string[]> => {
     try {
         const uploadPromises = images.map(async (image) => {
@@ -229,6 +230,62 @@ export const createActivityChallenge= async (activity:Activity,images:SelectedIm
 
         //@ts-ignore
         const data = await saveProgressChallenge(idChallengeJoin, idDays,challengeComplete.avgCalorie,challengeComplete.totalTime,challengeComplete.completed_exercise,activityData.id);
+
+        if (imageUrls.length > 0) {
+            const imageRecords = imageUrls.map(url => ({
+                image_url: url,
+                //@ts-ignore
+                activity_id: activityData.id
+            }));
+
+            const { error: imagesError } = await supabase
+                .from("activities_images")
+                .insert(imageRecords);
+
+            if (imagesError) {
+                throw imagesError;
+            }
+        }
+
+    }catch (e) {
+        throw e;
+    }
+
+}
+
+export const createActivityCustomWorkout= async (activity:Activity,images:SelectedImage[],customWorkoutId:string,completedExercise:string )=>{
+    let imageUrls: string[] = [];
+    let uploadedFilePaths: string[] = [];
+    try {
+        if (images.length > 0) {
+            imageUrls = await uploadActivityImages(activity.user_id, images);
+
+            uploadedFilePaths = imageUrls.map(url => {
+                const urlObj = new URL(url);
+                return urlObj.pathname.split('/').slice(3).join('/');
+            });
+        }
+
+        console.log('user id ', activity.user_id);
+
+        const { data: activityData, error: activityError } = await supabase
+            .from("activities")
+            .insert({
+                title: activity.title,
+                type:"custom_workout",
+                description: activity.description,
+                visibility: activity.visibility,
+                calorie: activity.calorie,
+                duration: activity.duration,
+                user_id: activity.user_id,
+            })
+            .select("id")
+            .single();
+
+        if (activityError) throw activityError;
+
+        //@ts-ignore
+        await createUserCustomWorkout(customWorkoutId,activity.user_id,activity.calorie,activity.duration, completedExercise, activityData.id);
 
         if (imageUrls.length > 0) {
             const imageRecords = imageUrls.map(url => ({
