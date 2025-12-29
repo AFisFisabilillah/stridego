@@ -6,6 +6,7 @@ import SignOutButton from "@/components/LogoutButton";
 import FriendRecommendCard from "@/components/FriendRecomendationCard";
 import {router} from "expo-router";
 import RunningMetricsCard from "@/components/RunningMetricsCard";
+import UserStreakCard from "@/components/UserStreakCard";
 
 export default function Index(){
     const auth = useAuthContext();
@@ -31,6 +32,8 @@ export default function Index(){
                         <Text>fullname : {auth.profile.fullname}</Text>
                     </>
                 )}
+                <UserStreakCard  showAnimation/>
+
 
                 {data.map((item, index) => (
                     <FriendRecommendCard
@@ -41,7 +44,6 @@ export default function Index(){
                         onAdd={() => console.log("Tambah teman:", item.name)}
                     />
                 ))}
-
 
 
                 <SignOutButton></SignOutButton>
