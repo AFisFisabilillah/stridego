@@ -9,10 +9,10 @@ export default function TabsLayout() {
                 <ChallengeProvider>
                     <Tabs screenOptions={{ headerShown: false }}>
                         <Tabs.Screen name="index" />
-                        <Tabs.Screen name="(workout)" options={{ title: "Workout" ,tabBarStyle: { display: "none" }}} />
+                        <Tabs.Screen name="(workout)"/>
                         <Tabs.Screen
                             name="(tracking)"
-                            options={{ title: "Run", tabBarStyle: { display: "none" } }}
+                            options={{ title: "Run", tabBarStyle: { display: "none" } ,headerShown:true}}
                         />
                     </Tabs>
                 </ChallengeProvider>

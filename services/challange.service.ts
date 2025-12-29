@@ -18,7 +18,7 @@ export async function getChallengeAll(filter: FilterChallenge) {
                     *
                 )
             `)
-            .eq("user_id", 'dd2cf399-fc02-4c19-8c71-113e08667a56');
+            .eq("user_id", filter.value);
     } else if (["beginner", "intermediate", "advanced"].includes(filter.id)) {
         query = supabase
             .from("challange_templates")
@@ -158,4 +158,9 @@ export async function getChallengeDayComplete(idUser:string, idChallenge:string)
         return item.challenge_days.id;
     });
     return newData;
+};
+
+
+function get() {
+    
 }
