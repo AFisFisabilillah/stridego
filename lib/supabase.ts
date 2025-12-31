@@ -18,7 +18,7 @@ const ExpoWebSecureStoreAdapter = {
     },
 };
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     auth: {
         storage: ExpoWebSecureStoreAdapter,
         autoRefreshToken: true,

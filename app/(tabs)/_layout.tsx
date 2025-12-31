@@ -14,6 +14,7 @@ export default function TabsLayout() {
                             name="(tracking)"
                             options={{ title: "Run", tabBarStyle: { display: "none" } ,headerShown:true}}
                         />
+                        <Tabs.Screen name="(profile)" />
                     </Tabs>
                 </ChallengeProvider>
             </GestureHandlerRootView>

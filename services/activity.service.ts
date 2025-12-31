@@ -75,7 +75,7 @@ export const createActivityRunning = async (
             .from("activities")
             .insert({
                 title: activity.title,
-                type: activity.type,
+                type: "running",
                 description: activity.description,
                 visibility: activity.visibility,
                 calorie: activity.calorie,
@@ -216,7 +216,7 @@ export const createActivityChallenge= async (activity:Activity,images:SelectedIm
             .from("activities")
             .insert({
                 title: activity.title,
-                type: activity.type,
+                type:"challenge",
                 description: activity.description,
                 visibility: activity.visibility,
                 calorie: activity.calorie,
@@ -306,5 +306,13 @@ export const createActivityCustomWorkout= async (activity:Activity,images:Select
     }catch (e) {
         throw e;
     }
+}
 
+export const countActivity=async  (userId:string) =>{
+    const {count, error} = await supabase
+        .from("activities")
+        .select("id", {count:"exact"})
+        .eq('user_id', userId);
+    if (error) throw error;
+    return count;
 }
