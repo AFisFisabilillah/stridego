@@ -9,7 +9,7 @@ export default function TrackingLayout() {
     return (
         <GestureHandlerRootView style={{flex: 1}}>
             <ActivityProvider>
-                <Stack >
+                <Stack>
                     <Stack.Screen options={{
                         headerShown:false
                     }} name="running" />
@@ -19,7 +19,7 @@ export default function TrackingLayout() {
                             fontWeight:"bold",
                             fontSize:22
                         }),
-                        headerShadowVisible:true,
+                        headerShadowVisible:false,
                     }}/>
                 </Stack>
             </ActivityProvider>

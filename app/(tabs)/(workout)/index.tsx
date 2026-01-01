@@ -125,8 +125,8 @@ const WorkoutScreen = () => {
     const renderWorkoutItem = ({ item }: { item: CustomWorkout }) => (
         <CustomWorkoutCard
             workout={item}
-            onPress={() => router.push(`/(workout)/custom-workout/${item.id}`)}
-            onEdit={() => router.push(`/(custom-workout)/edit-custom-workout/${item.id}`)}
+            onPress={() => router.push(`/(custom-workout)/${item.id}`)}
+            onEdit={() => router.push(`/(custom-workout)/(edit)/${item.id}`)}
         />
     );
 
@@ -154,7 +154,7 @@ const WorkoutScreen = () => {
                 {/* Header */}
                 <View style={styles.header}>
                     <View>
-                        <Text style={styles.headerTitle}>Workout</Text>
+                        <Text style={styles.headerTitle}>Stridego</Text>
                         <Text style={styles.headerSubtitle}>
                             Track your progress and challenges
                         </Text>
@@ -213,7 +213,6 @@ const WorkoutScreen = () => {
                     </TouchableOpacity>
                 </View>
 
-                {/* Content Section */}
                 <View style={styles.content}>
                     {selectedTab === 'challenges' ? (
                         <>
@@ -272,7 +271,6 @@ const WorkoutScreen = () => {
                     )}
                 </View>
 
-                {/* Quick Actions */}
                 <View style={styles.quickActions}>
                     <Text style={styles.quickActionsTitle}>Quick Actions</Text>
                     <View style={styles.quickActionsGrid}>
@@ -301,11 +299,10 @@ const WorkoutScreen = () => {
                             onPress={() => router.push("/(workout)/workout")}
                         >
                             <View style={[styles.quickActionIcon, { backgroundColor: Colors.light.success + '20' }]}>
-                                <Ionicons name="stats-chart" size={24} color={Colors.light.success} />
+                                <MaterialCommunityIcons name="trophy-outline" size={24} color={Colors.light.primary} />
                             </View>
                             <Text style={styles.quickActionText}>Challenge</Text>
                         </TouchableOpacity>
-
                     </View>
                 </View>
             </ScrollView>

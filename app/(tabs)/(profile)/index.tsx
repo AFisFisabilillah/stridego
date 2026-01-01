@@ -1,11 +1,11 @@
 import { LinearGradient } from "react-native-svg"
-import {StyleSheet, View, Text, ScrollView, TouchableOpacity} from "react-native";
+import {StyleSheet, View, Text, ScrollView, TouchableOpacity, RefreshControl} from "react-native";
 import ProfilePhoto from "@/components/ProfilePhoto";
 import ProfilesStats from "@/components/ProfilesStats";
 import {Colors} from "@/constants/theme";
 import Button from "@/components/Button";
 import {useAuthContext} from "@/hooks/use-auth-contex";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useImmer} from "use-immer";
 import { countingFollowers} from "@/services/followers.service";
 import {countActivity} from "@/services/activity.service";
@@ -29,6 +29,7 @@ interface ProfileStatistik {
          followers:0,
          following:0,
      });
+     const [refresh , setRefresh ] = useState(false);
      const [activities, setActivities] = useImmer<ActivityCardType[]>([]);
      const [updateModal, setUpdateModal] = useState<boolean>(false);
 
@@ -42,6 +43,13 @@ interface ProfileStatistik {
                  draft.following = countFollowing || 0;
              })
          }
+     }
+
+     async function handleRefresh() {
+         setRefresh(true)
+         await fetchProfileStats();
+         await fetchActivities();
+         setRefresh(false);
      }
 
      const fetchActivities = async ()=>{
@@ -59,7 +67,15 @@ interface ProfileStatistik {
          fetchActivities();
      }, []);
     return(<>
-        <ScrollView style={[styles.container]}  >
+        <ScrollView style={[styles.container]}showsVerticalScrollIndicator={false}
+                    refreshControl={
+                        <RefreshControl
+                            refreshing={refresh}
+                            onRefresh={handleRefresh}
+                            colors={[Colors.light.primary]}
+                            tintColor={Colors.light.primary}
+                        />
+                    }>
             <View style={styles.containerPhoto}>
                 <ProfilePhoto size={100} imageUri={profile.avatar_url ?? require("../../../assets/no_profile.jpeg")}/>
                 <View>

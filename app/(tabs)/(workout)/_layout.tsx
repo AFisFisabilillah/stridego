@@ -5,7 +5,7 @@ const WorkoutLayout = ()=>{
         <Stack screenOptions={{
             headerShown: false
         }}>
-            <Stack.Screen name ={"index"}/>
+            <Stack.Screen  name ={"index"}/>
             <Stack.Screen name={"(workout)"}/>
             <Stack.Screen name ={"(custom-workout"}/>
         </Stack>

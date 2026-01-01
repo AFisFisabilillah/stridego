@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { ActivityCard as ActivityCardType } from '@/services/load-activity.servise';
 import { Colors } from '@/constants/theme';
-import {MaterialIcons} from "@expo/vector-icons";
+import {MaterialCommunityIcons, MaterialIcons} from "@expo/vector-icons";
 
 interface ActivityCardProps {
     activity: ActivityCardType;
@@ -53,14 +53,18 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onPress }) => {
         });
     };
 
-    const formatTime = (minutes: number) => {
-        if (minutes < 60) {
-            return `${minutes} menit`;
+    const formatTime = (seconds: number) => {
+        const hrs = Math.floor(seconds / 3600);
+        const mins = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+
+        if (hrs > 0) {
+            return `${hrs}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
         }
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        return mins > 0 ? `${hours}j ${mins}m` : `${hours} jam`;
+
+        return `${mins}:${String(secs).padStart(2, "0")}`;
     };
+
 
     return (
         <TouchableOpacity style={styles.card} onPress={onPress}>
@@ -106,7 +110,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({ activity, onPress }) => {
                 {/* Type-specific stats */}
                 {activity.type === 'running' && activity.running_data && (
                     <View style={styles.statItem}>
-                        <MaterialIcons name="distance" size={20} color="#4CAF50" />
+                        <MaterialCommunityIcons name="map-marker-distance" size={20} color="#4CAF50" />
                         <Text style={styles.statValue}>{activity.running_data.distance.toFixed(1)}</Text>
                         <Text style={styles.statLabel}>km</Text>
                     </View>
