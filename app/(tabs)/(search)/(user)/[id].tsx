@@ -1,11 +1,11 @@
 import { LinearGradient } from "react-native-svg"
-import {StyleSheet, View, Text, ScrollView, TouchableOpacity, Alert} from "react-native";
+import {StyleSheet, View, Text, ScrollView, TouchableOpacity, Alert, RefreshControl} from "react-native";
 import ProfilePhoto from "@/components/ProfilePhoto";
 import ProfilesStats from "@/components/ProfilesStats";
 import {Colors} from "@/constants/theme";
 import Button from "@/components/Button";
 import {useAuthContext} from "@/hooks/use-auth-contex";
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {useImmer} from "use-immer";
 import { countingFollowers} from "@/services/followers.service";
 import {countActivity} from "@/services/activity.service";
@@ -24,6 +24,7 @@ interface ProfileStatistik {
 
 const UserProfileScreen= () => {
     const {id:profileId, isFollowing}=useLocalSearchParams();
+    const [refresh ,setRefresh] =useState(false);
     const [profile,setProfile] = useImmer({
         id:0,
         avatar_url:"",
@@ -61,6 +62,14 @@ const UserProfileScreen= () => {
             setActivities(data)
         }
     };
+
+    async function handleRefresh() {
+        setRefresh(true)
+        await fetchUserProfile()
+        await fetchProfileStats();
+        await fetchActivities();
+        setRefresh(false);
+    }
 
     const handlePressActivity=(activityId:string)=>{
         router.push(`/(activity)/${activityId}`)
@@ -101,9 +110,18 @@ const UserProfileScreen= () => {
         fetchActivities();
     }, []);
     return(<>
-        <ScrollView style={[styles.container]}  >
+        <ScrollView
+            style={[styles.container]}
+            showsVerticalScrollIndicator={false}
+            refreshControl={
+                <RefreshControl
+                    refreshing={refresh}
+                    onRefresh={handleRefresh}
+                    colors={[Colors.light.primary]}
+                    tintColor={Colors.light.primary}/>
+                    }>
             <View style={styles.containerPhoto}>
-                <ProfilePhoto size={100} imageUri={profile.avatar_url }/>
+                <ProfilePhoto size={100} imageUri={profile.avatar_url || require("@/assets/no_profile.jpeg")}/>
                 <View>
                     <Text style={styles.textUsername}>{profile?.username}</Text>
                     <Text style={styles.textFullname}>{profile?.fullname}</Text>

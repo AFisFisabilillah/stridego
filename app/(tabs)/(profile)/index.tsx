@@ -67,7 +67,7 @@ interface ProfileStatistik {
          fetchActivities();
      }, []);
     return(<>
-        <ScrollView style={[styles.container]}showsVerticalScrollIndicator={false}
+        <ScrollView style={[styles.container]} showsVerticalScrollIndicator={false}
                     refreshControl={
                         <RefreshControl
                             refreshing={refresh}
