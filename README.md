@@ -1,50 +1,86 @@
-# Welcome to your Expo app 👋
+# StrideGo 🏃‍♂️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+![Expo](https://img.shields.io/badge/Expo-Go-000020?style=for-the-badge&logo=expo&logoColor=white)
+![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 
-## Get started
+**StrideGo** is a comprehensive fitness tracking application designed to help users stay active, competitive, and organized. Built with React Native and Expo, StrideGo focuses on run tracking, community engagement through weekly challenges, and personalized workout planning.
 
-1. Install dependencies
+> *Your stride, your goal, your journey.*
 
-   ```bash
-   npm install
-   ```
+---
 
-2. Start the app
+## 📱 Features
 
-   ```bash
-   npx expo start
-   ```
+### 1. 📍 Real-time Run Tracking
+Track your runs with precision. StrideGo monitors your route, distance, pace, and time in real-time using geolocation services.
+- GPS Route Mapping
+- Live Pace & Distance Calculation
+- Run History & Stats
 
-In the output, you'll find options to open the app in a
+### 2. 🏆 Weekly Challenges
+Stay motivated by competing in generated weekly challenges.
+- Join global or friend-based leaderboards.
+- Earn badges for completing distance or frequency goals.
+- Push notifications for challenge updates.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 3. 🏋️ Custom Workout Builder
+Not just for running—plan your gym sessions or home workouts.
+- Create custom routines (Sets, Reps, Weights).
+- Save workout templates.
+- Track progress over time.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 📸 Screenshots
 
-When you're ready, run:
+| Home Screen | Run Tracking | Weekly Challenges | Create Workout |
+|:---:|:---:|:---:|:---:|
+| <img src="./assets/screenshots/home.png" width="200" /> | <img src="./assets/screenshots/tracking.png" width="200" /> | <img src="./assets/screenshots/challenges.png" width="200" /> | <img src="./assets/screenshots/workout.png" width="200" /> |
 
-```bash
-npm run reset-project
-```
+---
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+## 🛠 Tech Stack
 
-## Learn more
+* **Framework:** [React Native](https://reactnative.dev/)
+* **Platform:** [Expo](https://expo.dev/)
+* **Navigation:** React Navigation (Stack & Tab)
+* **Maps:** React Native Maps / Expo Location
+* **State Management:** 
+* **Storage:**  Supabase 
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 🚀 Getting Started
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Follow these instructions to get a copy of the project up and running on your local machine.
 
-## Join the community
+### Prerequisites
 
-Join our community of developers creating universal apps.
+* [Node.js](https://nodejs.org/) (LTS version recommended)
+* [Expo Go](https://expo.dev/client) app installed on your iOS or Android device.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+### Installation
+
+1.  **Clone the repository**
+    ```bash
+    git clone [https://github.com/username/stridego.git](https://github.com/username/stridego.git)
+    cd stridego
+    ```
+
+2.  **Install dependencies**
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+
+3.  **Start the development server**
+    ```bash
+    npx expo start
+    ```
+
+4.  **Run on device**
+   * Scan the QR code shown in the terminal using the **Expo Go** app (Android) or the Camera app (iOS).
+
+---
+

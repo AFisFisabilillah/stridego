@@ -171,7 +171,6 @@ export default function Login() {
                 </View>
                 <View style={style.containerSocial}>
                    <SignInGoogle/>
-
                 </View>
             </SafeAreaView>
         </>
