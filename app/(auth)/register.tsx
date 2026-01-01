@@ -7,6 +7,7 @@ import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabase";
 import {useImmer} from "use-immer";
 import {useState} from "react";
+import {SignInGoogle} from "@/components/SignInGoogle";
 
 type RegisterForm = {
     email: string;
@@ -50,7 +51,9 @@ export default function Register() {
         }).then(result  => {
             if(result.error){
                 console.log(result.error)
-                setErrors(draft => draft.email = result.error.message)
+                setErrors(draft => {
+                    draft.email = result.error.message;
+                });
                 return
             }
             console.log(result.data)
@@ -69,7 +72,7 @@ export default function Register() {
 
     function handleChangeEmail(email: string):void {
         if (errors.email) {
-            setErrors(draft => { draft.email = ""; });
+            setErrors(draft => { draft.email = "" });
         }
         if (apiError) {
             setApiError(null);
@@ -167,25 +170,8 @@ export default function Register() {
                     </View>
                 </View>
                 <View style={style.containerSocial}>
-                    <TouchableOpacity style={[style.buttonSocial, { backgroundColor: '#fff', borderColor: '#ddd' }]}>
-                        <View style={style.inner}>
-                            <Image
-                                source={require("../../assets/icon/google-icon.png")}
-                                style={style.logo}
-                            />
-                            <Text style={[style.text, { color: '#000' }]}>Sign in Google</Text>
-                        </View>
-                    </TouchableOpacity>
+                    <SignInGoogle/>
 
-                    <TouchableOpacity style={[style.buttonSocial, { backgroundColor: '#fff', borderColor: '#ddd' }]}>
-                        <View style={style.inner}>
-                            <Image
-                                source={require("../../assets/icon/facebook-icon.png")}
-                                style={style.logo}
-                            />
-                            <Text style={[style.text, { color: '#000' }]}>Sign in with Facebook</Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
             </SafeAreaView>
         </>

@@ -1,9 +1,9 @@
 import {Stack} from "expo-router";
 
-export function AuthFunction(){
+export default function AuthFunction(){
     return (
         <>
-            <Stack>
+            <Stack screenOptions={{headerShown: false}}>
                 <Stack.Screen name={"login"}/>
                 <Stack.Screen name={"register"}/>
                 <Stack.Screen name={"verification-code"} />

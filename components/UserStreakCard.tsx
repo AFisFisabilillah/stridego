@@ -28,7 +28,14 @@ const UserStreakCard: React.FC<UserStreakCardProps> = ({
                                                            showAnimation = true,
                                                            compact = false
                                                        }) => {
-    const [streakData, setStreakData] = useState<UserStreak | null>(null);
+    const [streakData, setStreakData] = useState<UserStreak>({
+        id: 0,
+        user_id: "",
+        current_streak: 0,
+        longest_streak: 0,
+        last_activity_date: "",
+        created_at: ""
+    });
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [showFireworks, setShowFireworks] = useState(false);
@@ -70,10 +77,12 @@ const UserStreakCard: React.FC<UserStreakCardProps> = ({
             setLoading(true);
             const data = await getUserStreak(userId as string);
             //@ts-ignore
-            setStreakData(data);
+            if(data){
+                setStreakData(data);
+            }
 
             //@ts-ignore
-            if (data.current_streak > 0 && data.last_activity_date === new Date().toISOString().split('T')[0]) {
+            if (data?.current_streak > 0 && data?.last_activity_date === new Date().toISOString().split('T')[0]) {
                 setShowFireworks(true);
                 setTimeout(() => setShowFireworks(false), 3000);
             }

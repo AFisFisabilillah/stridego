@@ -100,7 +100,7 @@ const ProfileScreen= () => {
             </View>
 
             <View style={styles.containerPhoto}>
-                <ProfilePhoto size={100} imageUri={profile.avatar_url ?? require("../../../assets/no_profile.jpeg")}/>
+                <ProfilePhoto size={100} imageUri={profile?.avatar_url || require("@/assets/no_profile.jpeg")}/>
                 <View>
                     <Text style={styles.textUsername}>{profile?.username}</Text>
                     <Text style={styles.textFullname}>{profile?.fullname}</Text>

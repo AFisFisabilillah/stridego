@@ -99,7 +99,7 @@ export default function ProfileForm() {
                 avatar_url: "",
                 id:form.id,
             });
-            router.replace("/(tabs)/home");
+            router.replace("/(tabs)/(workout)");
         } catch (err) {
             console.error(err);
             setApiError("Terjadi kesalahan saat menyimpan data.");
@@ -148,8 +148,8 @@ export default function ProfileForm() {
                         style={styles.picker}
                     >
                         <Picker.Item label="Pilih jenis kelamin" value="" />
-                        <Picker.Item label="Laki-laki" value="male" />
-                        <Picker.Item label="Perempuan" value="female" />
+                        <Picker.Item label="Laki-laki" value="Male" />
+                        <Picker.Item label="Perempuan" value="Female" />
                     </Picker>
                 </View>
 

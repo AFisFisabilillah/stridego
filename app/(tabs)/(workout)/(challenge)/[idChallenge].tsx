@@ -75,14 +75,18 @@ export default function DetailChallenge() {
         setJoin(isJoin);
         setLoading(true);
         //@ts-ignore
-        setIdChallengeJoin(id.id);
+        if(id){
+            setIdChallengeJoin(id.id);
+        }
         setLoading(false);
     }
 
     useEffect(() => {
         fetchChallengeDayComplete(idChallenge as string);
         fetchChallenge(idChallenge as string);
-        checkUserJoin(idUser, idChallenge);
+        if(idUser){
+            checkUserJoin(idUser, idChallenge);
+        }
     }, [idChallenge]);
 
     const getLevelColor = (level: string) => {
@@ -217,22 +221,6 @@ export default function DetailChallenge() {
                 </View>
 
                 {/* Stats Card */}
-                <View style={styles.statsCard}>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Participants</Text>
-                    </View>
-                    <View style={styles.statDivider}/>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0%</Text>
-                        <Text style={styles.statLabel}>Completion Rate</Text>
-                    </View>
-                    <View style={styles.statDivider}/>
-                    <View style={styles.statItem}>
-                        <Text style={styles.statValue}>0</Text>
-                        <Text style={styles.statLabel}>Active Now</Text>
-                    </View>
-                </View>
                 {
                     join ? (<Button handlePress={() => {
                     }} color={Colors.light.success} label={"Joined"}/>) : (

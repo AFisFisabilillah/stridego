@@ -5,7 +5,7 @@ export const getUserStreak = async (userId:string)=>{
         .from("user_streaks")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
     if(error) throw error;
     return data;
 }

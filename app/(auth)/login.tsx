@@ -7,6 +7,7 @@ import {useRouter} from "expo-router";
 import {supabase} from "@/lib/supabase";
 import {useImmer} from "use-immer";
 import {useState} from "react";
+import {SignInGoogle} from "@/components/SignInGoogle";
 
 type LoginForm = {
     email: string;
@@ -36,7 +37,7 @@ export default function Login() {
             hasError = true;
             return;
         }
-        if(login.password < 1){
+        if(login.password.length < 1){
             setErrors(draft => { draft.password = "Please fill password"; });
             return
         }
@@ -169,25 +170,8 @@ export default function Login() {
                     </View>
                 </View>
                 <View style={style.containerSocial}>
-                    <TouchableOpacity style={[style.buttonSocial, { backgroundColor: '#fff', borderColor: '#ddd' }]}>
-                        <View style={style.inner}>
-                            <Image
-                                source={require("../../assets/icon/google-icon.png")}
-                                style={style.logo}
-                            />
-                            <Text style={[style.text, { color: '#000' }]}>Sign in Google</Text>
-                        </View>
-                    </TouchableOpacity>
+                   <SignInGoogle/>
 
-                    <TouchableOpacity style={[style.buttonSocial, { backgroundColor: '#fff', borderColor: '#ddd' }]}>
-                        <View style={style.inner}>
-                            <Image
-                                source={require("../../assets/icon/facebook-icon.png")}
-                                style={style.logo}
-                            />
-                            <Text style={[style.text, { color: '#000' }]}>Sign in with Facebook</Text>
-                        </View>
-                    </TouchableOpacity>
                 </View>
             </SafeAreaView>
         </>
