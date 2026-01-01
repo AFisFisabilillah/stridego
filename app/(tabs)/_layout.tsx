@@ -15,6 +15,7 @@ export default function TabsLayout() {
                             options={{ title: "Run", tabBarStyle: { display: "none" } ,headerShown:true}}
                         />
                         <Tabs.Screen name="(profile)" />
+                        <Tabs.Screen name={"(search)"}/>
                     </Tabs>
                 </ChallengeProvider>
             </GestureHandlerRootView>
