@@ -79,7 +79,6 @@ export default function RunningMetricsCard({
                 onPress={handleExpand}
                 activeOpacity={0.9}
             >
-                {/* Header Section */}
                 <View style={styles.headerRow}>
                     <View style={styles.badgeContainer}>
                         <Ionicons name="fitness" size={14} color="#fff"/>
@@ -145,24 +144,7 @@ export default function RunningMetricsCard({
                     />
                 </Animated.View>
 
-                {/* Konten Tambahan */}
-                {isExpand && (
-                    <Animated.View
-                        entering={FadeIn.duration(600).delay(200)}
-                        exiting={FadeOut.duration(200)}
-                        style={styles.expandedContent}
-                    >
-                        <Text style={styles.detailsTitle}>Analisis Performa</Text>
-                        <View style={styles.placeholderGraph}>
-                            <View style={[styles.bar, {height: '40%'}]}/>
-                            <View style={[styles.bar, {height: '70%'}]}/>
-                            <View style={[styles.bar, {height: '50%'}]}/>
-                            <View style={[styles.bar, {height: '90%'}]}/>
-                            <View style={[styles.bar, {height: '60%'}]}/>
-                        </View>
-                        <Text style={styles.detailsSubtitle}>Statistik lari Anda hari ini.</Text>
-                    </Animated.View>
-                )}
+
             </TouchableOpacity>
         </Animated.View>
     );
