@@ -46,11 +46,6 @@ export const RestTimer: React.FC<RestTimerProps> = ({ duration, onComplete, onSk
             <Text style={styles.timer}>{formatTime(timeLeft)}</Text>
             <Text style={styles.subtitle}>Get ready for next exercise</Text>
 
-            <View style={styles.tips}>
-                <Text style={styles.tipText}>💧 Drink water</Text>
-                <Text style={styles.tipText}>🌀 Take deep breaths</Text>
-                <Text style={styles.tipText}>✨ Stretch if needed</Text>
-            </View>
 
             <TouchableOpacity style={styles.skipButton} onPress={onSkip}>
                 <Text style={styles.skipText}>Skip Rest</Text>
