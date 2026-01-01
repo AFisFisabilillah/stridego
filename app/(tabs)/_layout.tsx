@@ -1,35 +1,51 @@
-import { Tabs } from 'expo-router';
-import React from 'react';
+import {Tabs} from "expo-router";
+import {GestureHandlerRootView} from "react-native-gesture-handler";
+import {ChallengeProvider} from "@/providers/challenge-provider";
+import {Feather, MaterialCommunityIcons} from "@expo/vector-icons";
+import Run from "@/assets/icon/Run";
 
-import { HapticTab } from '@/components/haptic-tab';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
+export default function TabsLayout() {
+    return (
+        <>
+            <GestureHandlerRootView style={{flex: 1}}>
+                <ChallengeProvider>
+                    <Tabs screenOptions={{ headerShown: false }}>
+                        <Tabs.Screen options={{
+                            title:"Home",
+                            tabBarIcon:({focused, color,size}) =>(
+                                <Feather name="home" size={size} color={color} />
+                            )
+                        }} name="(workout)"/>
+                        <Tabs.Screen
+                            name="(tracking)"
+                            options={ {
+                                tabBarStyle: { display: "none" },
+                                title:"Run",
+                                tabBarIcon:({focused, color,size}) =>(
+                                    <Run width={size} height={size} fill={color}/>
+                                )
+                        }}
 
-export default function TabLayout() {
-  const colorScheme = useColorScheme();
-
-  return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        headerShown: false,
-        tabBarButton: HapticTab,
-      }}>
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Home',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="house.fill" color={color} />,
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: 'Explore',
-          tabBarIcon: ({ color }) => <IconSymbol size={28} name="paperplane.fill" color={color} />,
-        }}
-      />
-    </Tabs>
-  );
+                        />
+                        <Tabs.Screen
+                            name={"(search)"}
+                            options={ {
+                                title:"Search ",
+                                tabBarIcon:({focused, color,size}) =>(
+                                    <MaterialCommunityIcons name="account-search-outline" size={size} color={color} />       )
+                        }}
+                        />
+                        <Tabs.Screen
+                            name="(profile)"
+                            options={ {
+                                title:"Profile",
+                                tabBarIcon:({focused, color,size}) =>(
+                                    <Feather name="user" size={size} color={color} />                                )
+                            }}
+                        />
+                    </Tabs>
+                </ChallengeProvider>
+            </GestureHandlerRootView>
+        </>
+    );
 }
