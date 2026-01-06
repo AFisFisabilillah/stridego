@@ -31,12 +31,16 @@ Not just for running—plan your gym sessions or home workouts.
 - Track progress over time.
 
 ---
+## ERD
+<img src="./assets/screenshots/supabase_schema.svg" width="1000">
+
+---
 
 ## 📸 Screenshots
 
-| Home Screen | Run Tracking | Weekly Challenges | Create Workout |
-|:---:|:---:|:---:|:---:|
-| <img src="./assets/screenshots/home.png" width="200" /> | <img src="./assets/screenshots/tracking.png" width="200" /> | <img src="./assets/screenshots/challenges.png" width="200" /> | <img src="./assets/screenshots/workout.png" width="200" /> |
+|                 Home Screen                 |                         Run Tracking                         | Weekly Challenges | Create Workout |
+|:-------------------------------------------:|:------------------------------------------------------------:|:---:|:---:|
+| <img src="./assets/screenshots/home.jpeg"/> | <img src="./assets/screenshots/tracking.jpeg"  /> | <img src="./assets/screenshots/challenges.png" width="200" /> | <img src="./assets/screenshots/workout.png" width="200" /> |
 
 ---
 
